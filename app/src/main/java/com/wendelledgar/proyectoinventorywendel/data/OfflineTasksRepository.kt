@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.wendelledgar.proyectoinventorywendel.ui.navigation
+package com.wendelledgar.proyectoinventorywendel.data
 
-/**
- * Interface to describe the navigation destinations for the app
- */
-interface NavigationDestination {
-    /**
-     * Unique name to define the path for a composable
-     */
-    val route: String
+import kotlinx.coroutines.flow.Flow
 
-    /**
-     * String resource id to that contains title to be displayed for the screen.
-     */
-    val titleRes: Int
+class OfflineTasksRepository(private val taskDao: TaskDao) : TasksRepository {
+    override fun getAllItemsStream(): Flow<List<Task>> = taskDao.getAllItems()
+
+    override fun getItemStream(id: Int): Flow<Task?> = taskDao.getItem(id)
+
+    override suspend fun insertItem(task: Task) = taskDao.insert(task)
+
+    override suspend fun deleteItem(task: Task) = taskDao.delete(task)
+
+    override suspend fun updateItem(task: Task) = taskDao.update(task)
 }
