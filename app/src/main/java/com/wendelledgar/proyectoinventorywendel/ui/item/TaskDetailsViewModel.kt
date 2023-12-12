@@ -19,11 +19,15 @@ package com.wendelledgar.proyectoinventorywendel.ui.item
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 
 /**
@@ -40,19 +44,18 @@ class ItemDetailsViewModel(
 
     private val itemId: Int = checkNotNull(savedStateHandle[ItemDetailsDestination.itemIdArg])
 
-    val uiState: StateFlow<ItemDetailsUiState> =
+    val uiState: MutableStateFlow<ItemDetailsUiState> = MutableStateFlow(ItemDetailsUiState())
+    init {
         tasksRepository.getItemStream(itemId)
-            // E necesario descartar o posible Null que pode devolver a consulta.
-            // Na outra consulta non fai falta porque devovle unha lista baleira
             .filterNotNull()
             .map {
-                ItemDetailsUiState( outOfStock = it.quantity <= 0, itemDetails = it.toItemDetails())
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = ItemDetailsUiState()
-            )
-
+                ItemDetailsUiState(outOfStock = it.quantity <= 0, itemDetails = it.toItemDetails())
+            }
+            .onEach { updatedState ->
+                uiState.value = updatedState
+            }
+            .launchIn(viewModelScope)
+    }
 
 
     suspend fun reduceQuantityByOne() {
@@ -67,11 +70,19 @@ class ItemDetailsViewModel(
         }
     }
 
-    suspend fun completarTarea(){
-        val currentTask = uiState.value.itemDetails.toItem()
-        if(!currentTask.completado){
-            tasksRepository.updateItem(currentTask.copy(completado = true))
-        }
+     suspend fun updateSliderTask(numSlider: Int, numeroRepeticiones: Int){
+         val currentTask = uiState.value.itemDetails.toItem()
+
+             val tareaActualizada = when(numSlider) {
+                 1 -> currentTask.copy(serie1 = numeroRepeticiones)
+                 2 -> currentTask.copy(serie2 = numeroRepeticiones)
+                 3 -> currentTask.copy(serie3 = numeroRepeticiones)
+                 else -> currentTask
+             }
+
+             tasksRepository.updateItem(tareaActualizada)
+
+          uiState.value = uiState.value.copy(itemDetails = tareaActualizada.toItemDetails())
     }
 
     suspend fun deleteItem() {

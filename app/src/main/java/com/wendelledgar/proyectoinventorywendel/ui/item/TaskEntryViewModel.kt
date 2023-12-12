@@ -22,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
 import com.wendelledgar.proyectoinventorywendel.data.Task
-import java.text.NumberFormat
 
 /**
  * ViewModel to validate and insert items in the Room database.
@@ -70,6 +69,9 @@ data class ItemDetails(
     val name: String = "",
     val seriesRealizadas: String = "",
     val quantity: String = "",
+    val serie1: Int = 0,
+    val serie2: Int = 0,
+    val serie3: Int = 0
 )
 
 /**
@@ -81,8 +83,12 @@ fun ItemDetails.toItem(): Task = Task(
     id = id,
     name = name,
     seriesRealizadas = seriesRealizadas.toIntOrNull() ?: 0,
-    quantity = quantity.toIntOrNull() ?: 0
+    quantity = quantity.toIntOrNull() ?: 0,
+    serie1 = serie1,
+    serie2 = serie2,
+    serie3 = serie3
 )
+
 
 /**
  * Extension function to convert [Task] to [ItemUiState]

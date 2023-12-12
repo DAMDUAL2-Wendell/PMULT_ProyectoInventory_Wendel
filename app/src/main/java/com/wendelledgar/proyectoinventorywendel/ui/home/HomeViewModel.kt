@@ -22,6 +22,8 @@ import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,12 +36,12 @@ class HomeViewModel(private val tasksRepository: TasksRepository) : ViewModel() 
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    fun updateTaskCompletion(taskId: Int, completed: Boolean) {
+    fun updateTaskComplete(taskId: Int, completed: Boolean){
         viewModelScope.launch {
-            val task = tasksRepository.getItemStream(taskId) as? Task
-            if (task != null) {
-                tasksRepository.updateItem(task.copy(completado = completed))
-            }
+            val task = tasksRepository.getItemStream(taskId)
+                .filterNotNull()
+                .first()
+                .let {task -> tasksRepository.updateItem(task.copy(completado = completed))}
         }
     }
 
@@ -69,3 +71,5 @@ class HomeViewModel(private val tasksRepository: TasksRepository) : ViewModel() 
  * Ui State for HomeScreen
  */
 data class HomeUiState(val taskList: List<Task> = listOf())
+
+

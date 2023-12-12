@@ -16,13 +16,13 @@
 
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,6 +41,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,6 +49,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -62,6 +64,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.InventoryTopAppBar
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.data.Task
+import com.wendelledgar.proyectoinventorywendel.data.seriesPorDefecto
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.theme.InventoryTheme
@@ -115,6 +118,11 @@ fun ItemDetailsScreen(
                     viewModel.reduceQuantityByOne()
                 }
             },
+            updateSliderTask = {numSlider, valor ->
+                coroutineScope.launch {
+                    viewModel.updateSliderTask(numSlider, valor)
+                }
+            },
             onDelete = {
                 coroutineScope.launch {
                     viewModel.deleteItem()
@@ -132,6 +140,7 @@ fun ItemDetailsScreen(
 private fun ItemDetailsBody(
     itemDetailsUiState: ItemDetailsUiState,
     onTerminarSerie: () -> Unit,
+    updateSliderTask: (Int,Int) -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -143,6 +152,7 @@ private fun ItemDetailsBody(
 
         ItemDetails(
             task = itemDetailsUiState.itemDetails.toItem(),
+            updateSliderTask = updateSliderTask,
             modifier = Modifier.fillMaxWidth()
         )
         Button(
@@ -172,6 +182,49 @@ private fun ItemDetailsBody(
         }
     }
 }
+
+@SuppressLint("RememberReturnType")
+@Composable
+fun sliders(
+    task: Task,
+    updateSliderTask: (Int,Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var slider1 by remember { mutableStateOf(0f) }
+
+        Slider(
+            value = task.serie1.toFloat().takeIf{ it > 0 } ?: slider1,
+            onValueChange = { slider1 = it
+                updateSliderTask(1, it.toInt())
+            },
+            valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
+            steps = seriesPorDefecto.numeroRepeticiones + 1,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(text = task.serie1.toString())
+
+
+    Slider(
+        value = task.serie2.toFloat(),
+        onValueChange = { nuevoValor ->
+            updateSliderTask(2, nuevoValor.toInt())
+        },
+        valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
+        steps = seriesPorDefecto.numeroRepeticiones + 1,
+        modifier = Modifier.fillMaxWidth()
+    )
+    Slider(
+        value = task.serie3.toFloat(),
+        onValueChange = { nuevoValor ->
+            updateSliderTask(3, nuevoValor.toInt())
+        },
+        valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
+        steps = seriesPorDefecto.numeroRepeticiones + 1,
+        modifier = Modifier.fillMaxWidth()
+    )
+
+}
+
 
 @Composable
 fun ProgressBarExample(totalSeries: Int, seriesRealizadas: Int) {
@@ -209,10 +262,11 @@ fun ProgressBarExample(totalSeries: Int, seriesRealizadas: Int) {
 }
 
 
-
 @Composable
 fun ItemDetails(
-    task: Task, modifier: Modifier = Modifier
+    task: Task,
+    updateSliderTask: (Int, Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier,
@@ -250,10 +304,17 @@ fun ItemDetails(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
             )
+
+            sliders(
+                task = task,
+                updateSliderTask = updateSliderTask
+            )
+
             ProgressBarExample(
                 totalSeries = (task.quantity + task.seriesRealizadas),
                 seriesRealizadas = task.seriesRealizadas
             )
+
         }
     }
 }
@@ -301,6 +362,7 @@ fun ItemDetailsScreenPreview() {
                 itemDetails = ItemDetails(1, "Pen", "100", "10")
             ),
             onTerminarSerie = {},
+            updateSliderTask = {uno,dos -> {}},
             onDelete = {}
         )
     }

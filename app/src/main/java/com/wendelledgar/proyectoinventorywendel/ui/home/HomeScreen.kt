@@ -78,7 +78,6 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     navigateToItemEntry: () -> Unit,
-    updateTaskCompletion: (Int, Boolean) -> Unit,
     navigateToItemUpdate: (Int) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier
@@ -111,7 +110,7 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeBody(
             taskList = homeUiState.taskList,
-            updateTaskCompletion = updateTaskCompletion,
+            updateTaskCompletion = viewModel::updateTaskComplete,
             onItemClick = navigateToItemUpdate,
             modifier = Modifier
                 .padding(innerPadding)
@@ -179,7 +178,11 @@ private fun InventoryItem(
         Column(
             modifier = Modifier
                 .padding(dimensionResource(id = R.dimen.padding_large))
-                .background(if(task.completado) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.surfaceVariant),
+                .background(
+                    if (task.completado) MaterialTheme.colorScheme.inverseOnSurface
+                    else MaterialTheme.colorScheme.surfaceVariant
+                ),
+
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
         ) {
             Row(
@@ -218,9 +221,7 @@ private fun InventoryItem(
                 Spacer(Modifier.weight(1f))
                 CheckBoxCompletado(
                     task = task,
-                    onCheckedChange = {
-                        updateTaskCompletion(task.id, false)
-                    }
+                    updateTaskCompletion = updateTaskCompletion
                 )
             }
 
@@ -231,28 +232,29 @@ private fun InventoryItem(
 @Composable
 fun CheckBoxCompletado(
     task: Task,
-    onCheckedChange: (Boolean) -> Unit
+    updateTaskCompletion: (Int, Boolean) -> Unit,
 ) {
     var checked by remember { mutableStateOf(task.completado) }
+
     Switch(
         checked = checked,
         onCheckedChange = { isChecked ->
             checked = isChecked
-            onCheckedChange(isChecked)
+            updateTaskCompletion(task.id,isChecked)
         },
         modifier = Modifier.padding(0.dp)
     )
 }
 
 
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun HomeBodyPreview() {
     InventoryTheme {
         HomeBody(listOf(
             Task(1, "Game", 1, 20), Task(2, "Pen", 2, 30), Task(3, "TV", 3, 50)
-        ), onItemClick = {})
+        ), onItemClick = {}, updateTaskCompletion = {})
     }
 }
 
@@ -273,3 +275,4 @@ fun InventoryItemPreview() {
         )
     }
 }
+*/
