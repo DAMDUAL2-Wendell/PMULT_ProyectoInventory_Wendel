@@ -53,6 +53,11 @@ class TaskEditViewModel(
         }
     }
 
+    fun updateSliderTask(numSlider:Int, valor: Int){
+        itemUiState = itemUiState.copy(itemDetails = itemUiState.itemDetails.copy(
+            serie2 = valor
+        ))
+    }
 
 
     fun updateUiState(itemDetails: ItemDetails) {

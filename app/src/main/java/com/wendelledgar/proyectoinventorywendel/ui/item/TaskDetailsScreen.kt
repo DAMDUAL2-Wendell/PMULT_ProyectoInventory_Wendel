@@ -34,6 +34,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -86,7 +87,7 @@ fun ItemDetailsScreen(
     modifier: Modifier = Modifier
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState = viewModel.uiState.collectAsState().value
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -99,7 +100,7 @@ fun ItemDetailsScreen(
             )
         }, floatingActionButton = {
             FloatingActionButton(
-                onClick = { navigateToEditItem(uiState.itemDetails.id) },
+                onClick = { navigateToEditItem(viewModel.uiState.value.itemDetails.id) },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
 
@@ -138,7 +139,7 @@ fun ItemDetailsScreen(
 
 @Composable
 private fun ItemDetailsBody(
-    itemDetailsUiState: ItemDetailsUiState,
+    itemDetailsUiState: ItemUiState,
     onTerminarSerie: () -> Unit,
     updateSliderTask: (Int,Int) -> Unit,
     onDelete: () -> Unit,
@@ -151,6 +152,7 @@ private fun ItemDetailsBody(
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
         ItemDetails(
+            itemUiState = itemDetailsUiState,
             task = itemDetailsUiState.itemDetails.toItem(),
             updateSliderTask = updateSliderTask,
             modifier = Modifier.fillMaxWidth()
@@ -159,7 +161,7 @@ private fun ItemDetailsBody(
             onClick = onTerminarSerie,
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.small,
-            enabled = !itemDetailsUiState.outOfStock
+            enabled = true
         ) {
             Text(stringResource(R.string.btn_terminar_serie))
         }
@@ -183,47 +185,60 @@ private fun ItemDetailsBody(
     }
 }
 
-@SuppressLint("RememberReturnType")
 @Composable
 fun sliders(
     task: Task,
-    updateSliderTask: (Int,Int) -> Unit,
+    updateSliderTask: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var slider1 by remember { mutableStateOf(0f) }
 
-        Slider(
-            value = task.serie1.toFloat().takeIf{ it > 0 } ?: slider1,
-            onValueChange = { slider1 = it
-                updateSliderTask(1, it.toInt())
-            },
-            valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
-            steps = seriesPorDefecto.numeroRepeticiones + 1,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Text(text = task.serie1.toString())
+    var slider2 by rememberSaveable { mutableStateOf(task.serie2) }
+    var isCheckedSlider2 by rememberSaveable { mutableStateOf(false) }
+    var previousSlider2Value by rememberSaveable { mutableStateOf(0f) }
 
-
-    Slider(
-        value = task.serie2.toFloat(),
-        onValueChange = { nuevoValor ->
-            updateSliderTask(2, nuevoValor.toInt())
-        },
-        valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
-        steps = seriesPorDefecto.numeroRepeticiones + 1,
-        modifier = Modifier.fillMaxWidth()
-    )
-    Slider(
-        value = task.serie3.toFloat(),
-        onValueChange = { nuevoValor ->
-            updateSliderTask(3, nuevoValor.toInt())
-        },
-        valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
-        steps = seriesPorDefecto.numeroRepeticiones + 1,
-        modifier = Modifier.fillMaxWidth()
-    )
-
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = slider2?.toString() ?: "0",
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+            Slider(
+                value = if (isCheckedSlider2) seriesPorDefecto.numeroRepeticiones.toFloat() else slider2?.toFloat() ?: 0f,
+                onValueChange = {
+                    if (!isCheckedSlider2) {
+                        slider2 = it.toInt()
+                        updateSliderTask(2, it.toInt())
+                    }
+                },
+                valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
+                steps = (seriesPorDefecto.numeroRepeticiones + 1).toInt(),
+                modifier = Modifier.weight(1f)
+            )
+            Checkbox(
+                checked = isCheckedSlider2,
+                onCheckedChange = {
+                    isCheckedSlider2 = it
+                    if (it) {
+                        previousSlider2Value = slider2?.toFloat() ?: 0f
+                        slider2 = seriesPorDefecto.numeroRepeticiones.toInt()
+                        updateSliderTask(2, seriesPorDefecto.numeroRepeticiones)
+                    } else {
+                        slider2 = previousSlider2Value.toInt()
+                        updateSliderTask(2, previousSlider2Value.toInt())
+                    }
+                }
+            )
+        }
+    }
 }
+
 
 
 @Composable
@@ -264,6 +279,7 @@ fun ProgressBarExample(totalSeries: Int, seriesRealizadas: Int) {
 
 @Composable
 fun ItemDetails(
+    itemUiState: ItemUiState,
     task: Task,
     updateSliderTask: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
@@ -357,8 +373,7 @@ private fun DeleteConfirmationDialog(
 fun ItemDetailsScreenPreview() {
     InventoryTheme {
         ItemDetailsBody(
-            ItemDetailsUiState(
-                outOfStock = true,
+            ItemUiState(
                 itemDetails = ItemDetails(1, "Pen", "100", "10")
             ),
             onTerminarSerie = {},

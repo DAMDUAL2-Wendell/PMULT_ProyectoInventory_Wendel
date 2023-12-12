@@ -16,17 +16,33 @@
 
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.InventoryTopAppBar
 import com.wendelledgar.proyectoinventorywendel.R
+import com.wendelledgar.proyectoinventorywendel.data.Task
+import com.wendelledgar.proyectoinventorywendel.data.seriesPorDefecto
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.theme.InventoryTheme
@@ -60,17 +76,79 @@ fun ItemEditScreen(
         },
         modifier = modifier
     ) { innerPadding ->
-        ItemEntryBody(
-            itemUiState = viewModel.itemUiState,
-            onItemValueChange = viewModel::updateUiState,
-            onSaveClick = {
-                coroutineScope.launch {
-                    viewModel.updateItem()
-                    navigateBack()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()  // Asegura que el contenido ocupe todo el espacio disponible
+                .padding(innerPadding)
+        ) {
+            ItemEntryBody(
+                itemUiState = viewModel.itemUiState,
+                onItemValueChange = viewModel::updateUiState,
+                onSaveClick = {
+                    coroutineScope.launch {
+                        viewModel.updateItem()
+                        navigateBack()
+                    }
+                },
+                modifier = Modifier.padding(innerPadding)
+            )
+            sliders2(task = viewModel.itemUiState.itemDetails.toItem(), updateSliderTask = viewModel::updateSliderTask)
+
+        }
+    }
+}
+
+@Composable
+fun sliders2(
+    task: Task,
+    updateSliderTask: (Int, Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    var slider2 by rememberSaveable { mutableStateOf(task.serie2) }
+    var isCheckedSlider2 by rememberSaveable { mutableStateOf(false) }
+    var previousSlider2Value by rememberSaveable { mutableStateOf(0f) }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = slider2?.toString() ?: "0",
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+            Slider(
+                value = if (isCheckedSlider2) seriesPorDefecto.numeroRepeticiones.toFloat() else slider2?.toFloat() ?: 0f,
+                onValueChange = {
+                    if (!isCheckedSlider2) {
+                        slider2 = it.toInt()
+                        updateSliderTask(2, it.toInt())
+                    }
+                },
+                valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
+                steps = (seriesPorDefecto.numeroRepeticiones + 1).toInt(),
+                modifier = Modifier.weight(1f)
+            )
+            Checkbox(
+                checked = isCheckedSlider2,
+                onCheckedChange = {
+                    isCheckedSlider2 = it
+                    if (it) {
+                        previousSlider2Value = slider2?.toFloat() ?: 0f
+                        slider2 = seriesPorDefecto.numeroRepeticiones.toInt()
+                        updateSliderTask(2, seriesPorDefecto.numeroRepeticiones)
+                    } else {
+                        slider2 = previousSlider2Value.toInt()
+                        updateSliderTask(2, previousSlider2Value.toInt())
+                    }
                 }
-            },
-            modifier = Modifier.padding(innerPadding)
-        )
+            )
+        }
     }
 }
 
@@ -93,3 +171,4 @@ fun ItemEditBodyPreview() {
         ), onItemValueChange = {}, onSaveClick = {})
     }
 }
+
