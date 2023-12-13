@@ -16,7 +16,6 @@
 
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
-import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,7 +49,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -62,7 +60,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.wendelledgar.proyectoinventorywendel.InventoryTopAppBar
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.data.seriesPorDefecto
@@ -215,10 +212,10 @@ fun sliders(
                 onValueChange = {
                         slider2 = it.toInt()
                         updateSliderTask(2, it.toInt())
-                        if(slider2.toInt() == seriesPorDefecto.numeroRepeticiones) isCheckedSlider2 = true else isCheckedSlider2 = false
+                        if(slider2.toInt() == task.quantity) isCheckedSlider2 = true else isCheckedSlider2 = false
                 },
-                valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
-                steps = (seriesPorDefecto.numeroRepeticiones + 1).toInt(),
+                valueRange = 0f..task.quantity.toFloat(),
+                steps = (task.quantity + 1),
                 modifier = Modifier.weight(1f)
             )
             Checkbox(
@@ -227,8 +224,8 @@ fun sliders(
                     isCheckedSlider2 = it
                     if (it) {
                         previousSlider2Value = slider2?.toFloat() ?: 0f
-                        slider2 = seriesPorDefecto.numeroRepeticiones.toInt()
-                        updateSliderTask(2, seriesPorDefecto.numeroRepeticiones)
+                        slider2 = task.quantity
+                        updateSliderTask(2, slider2)
                     } else {
                         slider2 = previousSlider2Value.toInt()
                         updateSliderTask(2, previousSlider2Value.toInt())
@@ -242,9 +239,12 @@ fun sliders(
 
 
 @Composable
-fun ProgressBarExample(totalSeries: Int, seriesRealizadas: Int) {
-    val progress = if (totalSeries > 0) {
-        (seriesRealizadas.toFloat() / totalSeries.toFloat())
+fun ProgressBarExample(
+    total: Int,
+    completed: Int
+) {
+    val progress = if (total > 0) {
+        (completed.toFloat() / total.toFloat())
     } else {
         0f
     }
@@ -267,7 +267,7 @@ fun ProgressBarExample(totalSeries: Int, seriesRealizadas: Int) {
             )
 
             Text(
-                text = "$seriesRealizadas/$totalSeries",
+                text = "$completed/$total",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -308,7 +308,7 @@ fun ItemDetails(
             )
             ItemDetailsRow(
                 labelResID = R.string.num_series,
-                itemDetail = task.quantity.toString(),
+                itemDetail = ((task.quantity * 3) - task.seriesRealizadas).toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
@@ -327,8 +327,8 @@ fun ItemDetails(
             )
 
             ProgressBarExample(
-                totalSeries = (task.quantity + task.seriesRealizadas),
-                seriesRealizadas = task.seriesRealizadas
+                total = (task.serie1 + task.serie2 + task.serie3),
+                completed = task.seriesRealizadas
             )
 
         }

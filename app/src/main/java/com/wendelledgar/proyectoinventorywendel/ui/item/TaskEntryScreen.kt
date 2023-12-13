@@ -16,6 +16,7 @@
 
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -130,10 +132,37 @@ fun ItemInputForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
     ) {
-        OutlinedTextField(
+
+
+        outliedTextField(
             value = itemDetails.name,
+            label = R.string.item_name_req,
             onValueChange = { onValueChange(itemDetails.copy(name = it)) },
-            label = { Text(stringResource(R.string.item_name_req)) },
+            keyboardType = KeyboardType.Text,
+        )
+
+        outliedTextField(
+            value = itemDetails.seriesRealizadas,
+            label = R.string.item_seriesRealizadas_req,
+            onValueChange = { onValueChange(itemDetails.copy(seriesRealizadas = it)) },
+            keyboardType = KeyboardType.Decimal,
+        )
+
+        outliedTextField(
+            value = itemDetails.quantity,
+            label = R.string.cantidad_series,
+            onValueChange = { onValueChange(itemDetails.copy(quantity = it.toInt())) },
+            keyboardType = KeyboardType.Decimal,
+        )
+
+
+
+        /*
+        OutlinedTextField(
+            value = itemDetails.quantity,
+            onValueChange = { onValueChange(itemDetails.copy(quantity = it)) },
+            label = { Text(stringResource(R.string.cantidad_series)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -143,6 +172,10 @@ fun ItemInputForm(
             enabled = enabled,
             singleLine = true
         )
+*/
+
+
+/*
         OutlinedTextField(
             value = itemDetails.seriesRealizadas,
             onValueChange = { onValueChange(itemDetails.copy(seriesRealizadas = it)) },
@@ -158,20 +191,8 @@ fun ItemInputForm(
             enabled = enabled,
             singleLine = true
         )
-        OutlinedTextField(
-            value = itemDetails.quantity,
-            onValueChange = { onValueChange(itemDetails.copy(quantity = it)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            label = { Text(stringResource(R.string.cantidad_series)) },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true
-        )
+
+        */
         if (enabled) {
             Text(
                 text = stringResource(R.string.required_fields),
@@ -181,13 +202,37 @@ fun ItemInputForm(
     }
 }
 
+@Composable
+fun outliedTextField(
+    value: Any?,
+    @StringRes label: Int,
+    onValueChange: (String) -> Unit,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    enabled: Boolean = true,
+) {
+    OutlinedTextField(
+        value = value?.toString() ?: "",
+        onValueChange = { onValueChange(it) },
+        label = { Text(stringResource(label))},
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        enabled = enabled,
+        singleLine = true
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun ItemEntryScreenPreview() {
     InventoryTheme {
         ItemEntryBody(itemUiState = ItemUiState(
             ItemDetails(
-                name = "Item name", seriesRealizadas = "1", quantity = "5"
+                name = "Item name", seriesRealizadas = "1", quantity = 5
             )
         ), onItemValueChange = {}, onSaveClick = {})
     }

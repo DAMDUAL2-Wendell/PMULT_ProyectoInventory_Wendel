@@ -35,15 +35,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,18 +59,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBar
@@ -115,12 +108,6 @@ fun HomeScreen(
                     )
         },
         topBar = {
-            /*
-            InventoryTopAppBar(
-                title = stringResource(HomeDestination.titleRes),
-                canNavigateBack = false,
-                scrollBehavior = scrollBehavior
-            )*/
             topAppBar(
                 title = stringResource(HomeDestination.titleRes),
                 canNavigateBack = false,
@@ -237,7 +224,8 @@ private fun InventoryItem(
                     cardBackgroundColorCompleted
 
                 )
-                .padding(dimensionResource(id = R.dimen.padding_small))
+                .padding(dimensionResource(id = R.dimen.padding_small)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
             /*
             modifier = Modifier
                 .padding(dimensionResource(id = R.dimen.padding_large))
@@ -246,32 +234,52 @@ private fun InventoryItem(
                     else MaterialTheme.colorScheme.surfaceVariant
                 ),
 
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
+
             */
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                titleContentTask(task, modifier = Modifier.weight(0.6f))
+                cardTaskName(
+                    taskName = task.name,
+                    modifier = Modifier
+                        .weight(0.6f)
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                )
                 //Spacer(modifier = Modifier.weight(1f))
-                iconoHeroe(imaxeId = R.drawable.gym_logo_vector_617585_1980)
+                inocoCardTask(imaxeId = R.drawable.gym_logo_vector_617585_1980)
             }
 
-            Row {
-                contentRestantesTask(task)
-            }
-            Row {
-                infoHeroe(title = task.name, description = task.name)
 
-            }
-            Row {
-                expandButton(expanded = expanded, onClick = { expanded = !expanded })
-                contentCompletadoTask(task = task, updateTaskCompletion = updateTaskCompletion)
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                    Column {
+                        expandButton(expanded = expanded, onClick = { expanded = !expanded })
+
+                    }
+                
+                Spacer(modifier = Modifier.weight(1f))
+
+                        contentCompletadoCheckboxTask(task = task, updateTaskCompletion = updateTaskCompletion)
+
+
 
             }
             if (expanded) {
-                //extraHeroe(extra = task.quantity, modifier)
-                Text(text = "prueba")
+                infoCardTask(
+                    key = R.string.quantity,
+                    value = task.quantity.toInt().toString()
+                )
+                /*
+                infoCardTask(
+                    key = task.name,
+                    value = task.name
+                )*/
+
+
+
             }
 
         }
@@ -279,18 +287,25 @@ private fun InventoryItem(
 }
 
 @Composable
-fun contentCompletadoTask(
+fun contentCompletadoCheckboxTask(
     task: Task,
     updateTaskCompletion: (Int, Boolean) -> Unit,
+    modifier:Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.End
+
+    Column (
+        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
     ) {
         Text(
             text = stringResource(R.string.completado)
         )
+    }
+
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.End,
+    ) {
+
         Spacer(Modifier.weight(1f))
         CheckBoxCompletado(
             task = task,
@@ -300,26 +315,34 @@ fun contentCompletadoTask(
 }
 
 @Composable
-fun contentRestantesTask(
-    task: Task
+fun contentCompletadoCheckboxTask2(
+    task: Task,
+    updateTaskCompletion: (Int, Boolean) -> Unit,
 ) {
-    Column(
+    Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(
-                R.string.series_restantes,
-                task.quantity
-            ),
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
+        Column {
+            Text(
+                text = stringResource(R.string.completado)
+            )
+        }
 
+        Spacer(Modifier.weight(1f))
+
+        Column {
+            CheckBoxCompletado(
+                task = task,
+                updateTaskCompletion = updateTaskCompletion
+            )
+        }
+    }
 }
 
+
 @Composable
-fun titleContentTask(
-    task: Task,
+fun cardTaskName(
+    taskName: String,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -328,65 +351,52 @@ fun titleContentTask(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = task.name,
-            style = MaterialTheme.typography.titleLarge,
-        )
-    }
-}
-
-
-
-@Composable
-fun infoHeroe(
-    title: String,
-    description: String,
-    modifier: Modifier = Modifier
-) {
-
-    Column(
-        modifier = modifier
-            .padding(dimensionResource(id = R.dimen.padding_small))
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
+            text = taskName,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = description,
-            style = MaterialTheme.typography.titleMedium
-        )
     }
 }
 
 
+
 @Composable
-fun extraHeroe(
-    @StringRes extra: Int,
+fun infoCardTask(
+    @StringRes key: Int,
+    value: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
+
+    Row(
         modifier = modifier
             .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small))
     ) {
+        Column {
+            Text(
+                text = stringResource(id = key),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.weight(0.3f))
 
-        Text(
-            text = "About:",
-            fontStyle = FontStyle.Normal,
-            fontFamily = FontFamily.Default,
-            fontSize = 15.sp
-        )
-        Text(
-            text = stringResource(id = extra)
-        )
+        Column {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
 
     }
-
 }
 
+
+
 @Composable
-fun iconoHeroe(
+fun inocoCardTask(
     @DrawableRes imaxeId: Int,
     modifier: Modifier = Modifier
 ) {

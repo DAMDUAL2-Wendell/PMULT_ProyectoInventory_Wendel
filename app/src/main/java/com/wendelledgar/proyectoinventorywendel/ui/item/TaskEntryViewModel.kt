@@ -45,7 +45,9 @@ class ItemEntryViewModel(private val tasksRepository: TasksRepository) : ViewMod
 
     private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
         return with(uiState) {
-            name.isNotBlank() && seriesRealizadas.isNotBlank() && quantity.isNotBlank()
+            name.isNotBlank()
+            //&&seriesRealizadas.isNotBlank()
+            //&& quantity.isNotBlank()
         }
     }
 
@@ -67,8 +69,9 @@ data class ItemUiState(
 data class ItemDetails(
     val id: Int = 0,
     val name: String = "",
+    val description: String = "",
     val seriesRealizadas: String = "",
-    val quantity: String = "",
+    val quantity: Int? = null,
     val serie1: Int? = null,
     val serie2: Int? = null,
     val serie3: Int? = null
@@ -82,8 +85,9 @@ data class ItemDetails(
 fun ItemDetails.toItem(): Task = Task(
     id = id,
     name = name,
+    description = description,
     seriesRealizadas = seriesRealizadas.toIntOrNull() ?: 0,
-    quantity = quantity.toIntOrNull() ?: 0,
+    quantity = quantity ?: 15,
     serie1 = serie1 ?: 0,
     serie2 = serie2 ?: 0,
     serie3 = serie3 ?: 0
@@ -104,6 +108,10 @@ fun Task.toItemUiState(isEntryValid: Boolean = false): ItemUiState = ItemUiState
 fun Task.toItemDetails(): ItemDetails = ItemDetails(
     id = id,
     name = name,
+    description = description,
     seriesRealizadas = seriesRealizadas.toString(),
-    quantity = quantity.toString()
+    quantity = quantity,
+    serie1 = serie1,
+    serie2 = serie2,
+    serie3 = serie3
 )

@@ -89,7 +89,7 @@ fun ItemEditBodyPreview() {
     InventoryTheme {
         ItemEntryBody(itemUiState = ItemUiState(
             ItemDetails(
-                name = "Item name", seriesRealizadas = "10", quantity = "5"
+                name = "Item name", seriesRealizadas = "10", quantity = 5
             )
         ), onItemValueChange = {}, onSaveClick = {})
     }

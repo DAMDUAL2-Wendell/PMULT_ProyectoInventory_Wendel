@@ -14,11 +14,12 @@
     <string name="no">No</string>
     <string name="seriesRealizadas">Series realizadas</string>
     <string name="completado">Completado</string>
-    <string name="num_series">Series restantes</string>
+    <string name="num_series">Restantes</string>
     <string name="series_restantes">%d restantes</string>
     <string name="cantidad_series">Numero de series a realizar</string>
     <string name="save_action">Guardar</string>
     <string name="btn_terminar_serie">Terminar 1 serie</string>
     <string name="yes">Yes</string>
-    <string name="required_fields">*required fields</string>
+    <string name="required_fields">*Campos requeridos</string>
+    <string name="quantity">Cantidad</string>
 </resources>
