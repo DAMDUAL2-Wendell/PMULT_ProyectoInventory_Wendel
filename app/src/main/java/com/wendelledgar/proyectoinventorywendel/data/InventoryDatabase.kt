@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 /**
  * A clase da bbdd con un singleton Instance
  */
-@Database(entities = [Task::class], version = 3, exportSchema = false)
+@Database(entities = [Task::class], version = 4, exportSchema = false)
 // Cada vez que se cambie o esquema aumentar en 1 a version. exportSchema para copias de seguridade
 abstract class InventoryDatabase : RoomDatabase() {
     abstract fun itemDao(): TaskDao

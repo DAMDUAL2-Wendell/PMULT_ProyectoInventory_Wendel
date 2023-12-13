@@ -23,7 +23,7 @@ interface TaskDao {
     @Query("SELECT * from tasks WHERE id = :id")
     fun getItem(id: Int): Flow<Task> // Como devolve Flow non hai que chamala detro do scope da corrutina
 
-    @Query("SELECT * from tasks ORDER BY name ASC")
+    @Query("SELECT * from tasks ORDER BY id ASC")
     fun getAllItems(): Flow<List<Task>>
 
 
