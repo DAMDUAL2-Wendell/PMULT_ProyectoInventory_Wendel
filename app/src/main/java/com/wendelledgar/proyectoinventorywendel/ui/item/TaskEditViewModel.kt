@@ -26,7 +26,7 @@ class TaskEditViewModel(
 
     init {
         viewModelScope.launch {
-            itemUiState = tasksRepository.getItemStream(itemId)
+            itemUiState = tasksRepository.getTaskStream(itemId)
                 .filterNotNull()
                 .first()
                 .toItemUiState(true)
@@ -47,7 +47,7 @@ class TaskEditViewModel(
 
     suspend fun updateItem() {
         if (validateInput()) {
-            tasksRepository.updateItem(itemUiState.itemDetails.toItem())
+            tasksRepository.updateTask(itemUiState.itemDetails.toItem())
         }
     }
 

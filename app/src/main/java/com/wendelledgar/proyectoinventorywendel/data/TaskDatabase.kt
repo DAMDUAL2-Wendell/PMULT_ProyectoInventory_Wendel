@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import kotlinx.coroutines.runBlocking
 
-@Database(entities = [Task::class], version = 13, exportSchema = false)
+@Database(entities = [Task::class], version = 15, exportSchema = false)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
@@ -18,7 +18,7 @@ abstract class TaskDatabase : RoomDatabase() {
 
             return Instance ?: synchronized(this) {
 
-                Room.databaseBuilder(context, TaskDatabase::class.java, "item_database")
+                Room.databaseBuilder(context, TaskDatabase::class.java, "task_database")
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it

@@ -15,6 +15,7 @@
     <string name="repeticionesRealizadas">Repeticiones realizadas</string>
     <string name="completado">Completado</string>
     <string name="num_series">Restantes</string>
+    <string name="seriesNum">Repeticiones por serie</string>
     <string name="series_restantes">%d restantes</string>
     <string name="cantidad_series">Numero de repeticiones a realizar</string>
     <string name="description">Descripción</string>

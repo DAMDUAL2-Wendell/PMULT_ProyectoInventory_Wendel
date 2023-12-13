@@ -18,17 +18,15 @@ class HomeViewModel(private val tasksRepository: TasksRepository) : ViewModel() 
     }
 
     fun updateTaskComplete(taskId: Int, completed: Boolean){
-
-
             if(completed){
 
                 viewModelScope.launch {
-                    val repes = tasksRepository.getItemStream(taskId).filterNotNull().first().totalRepeticiones
-                    val task = tasksRepository.getItemStream(taskId)
+                    val repes = tasksRepository.getTaskStream(taskId).filterNotNull().first().totalRepeticiones
+                    val task = tasksRepository.getTaskStream(taskId)
                         .filterNotNull()
                         .first()
                         .let { task ->
-                            tasksRepository.updateItem(
+                            tasksRepository.updateTask(
                                 task.copy(
                                     completado = completed,
                                     totalRepeticiones = repes,
@@ -43,11 +41,11 @@ class HomeViewModel(private val tasksRepository: TasksRepository) : ViewModel() 
 
             }else {
                 viewModelScope.launch {
-                    val task = tasksRepository.getItemStream(taskId)
+                    val task = tasksRepository.getTaskStream(taskId)
                         .filterNotNull()
                         .first()
                         .let { task ->
-                            tasksRepository.updateItem(
+                            tasksRepository.updateTask(
                                 task.copy(
                                     completado = completed,
                                     serie1 = 0,
@@ -63,7 +61,7 @@ class HomeViewModel(private val tasksRepository: TasksRepository) : ViewModel() 
     }
 
     val homeUiState: StateFlow<HomeUiState> =
-        tasksRepository.getAllItemsStream()
+        tasksRepository.getAllTasksStream()
             .map { HomeUiState(it) }
             .stateIn(
                 scope = viewModelScope,

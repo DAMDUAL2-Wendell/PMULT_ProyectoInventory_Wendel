@@ -22,6 +22,7 @@
     <dimen name="padding_large">20dp</dimen>
     <dimen name="padding_extra_large">32dp</dimen>
     <dimen name="image_card_size">80dp</dimen>
+    <dimen name="boton_extender">30dp</dimen>
     <dimen name="image_topAppbar_size">100dp</dimen>
     <dimen name="logo_size">70dp</dimen>
     <dimen name="texto_titulo">16</dimen>

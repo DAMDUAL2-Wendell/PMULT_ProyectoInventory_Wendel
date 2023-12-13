@@ -29,6 +29,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +46,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarHome
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
@@ -69,6 +73,7 @@ fun ItemDetailsScreen(
 
     val uiState = viewModel.taskDetailState
 
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -77,9 +82,17 @@ fun ItemDetailsScreen(
             topAppBar(
                 title = stringResource(ItemDetailsDestination.titleRes),
                 canNavigateBack = true,
-                navigateUp = navigateBack
+                navigateUp = navigateBack,
+                scrollBehavior = scrollBehavior,
+                modifier = Modifier.height(dimensionResource(id = R.dimen.bottom_bar))
             )
-        }, floatingActionButton = {
+        },
+        bottomBar = {
+            bottomAppBarDetail(
+                navigateBack = navigateBack,
+            )
+        },
+        floatingActionButton = {
             FloatingActionButton(
                 onClick = { navigateToEditItem(viewModel.taskDetailState.itemDetails.id) },
                 shape = MaterialTheme.shapes.medium,
@@ -177,7 +190,6 @@ private fun ItemDetailsBody(
 @Composable
 fun sliderAndCheckbox(
     sliderValue: Int,
-    completed: Boolean,
     sliderNumero: Int,
     totalRepeticiones: Int,
     updateSliderTask: (Int, Int) -> Unit,
@@ -191,7 +203,7 @@ fun sliderAndCheckbox(
     var previousSliderValue by rememberSaveable { mutableStateOf(0f) }
 
 
-    var sliderCompleted by rememberSaveable { mutableStateOf(completed) }
+    var sliderCompleted = (sliderValue == totalRepeticiones)
 
     Box(
         modifier = modifier,
@@ -238,24 +250,29 @@ fun sliderAndCheckbox(
 
 
 
+
+
 @Composable
 fun progressBar(
     total: Int,
     completed: Int
 ) {
     val progress = if (total > 0) {
-        (total.toFloat() - completed.toFloat())
+        (completed.toFloat()/ total.toFloat())
     } else {
         0f
     }
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.background
+        modifier = Modifier
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        //contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                ,
             contentAlignment = Alignment.Center
         ) {
             LinearProgressIndicator(
@@ -263,13 +280,13 @@ fun progressBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(16.dp),
-                trackColor = MaterialTheme.colorScheme.inversePrimary
+                trackColor = MaterialTheme.colorScheme.tertiary
             )
 
             Text(
                 text = "$completed/$total",
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -298,16 +315,20 @@ fun ItemDetails(
                 dimensionResource(id = R.dimen.padding_medium)
             )
         ) {
+           
+            cardTitle(taskName = task.name)
+
             ItemDetailsRow(
-                labelResID = R.string.item,
-                itemDetail = task.name,
+                labelResID = R.string.seriesNum,
+                itemDetail = task.totalRepeticiones.toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
             )
+
             ItemDetailsRow(
                 labelResID = R.string.num_series,
-                itemDetail = ((task.serie1 + task.serie2 + task.serie3) - task.repeticionesRealizadas).toString(),
+                itemDetail = ((task.totalRepeticiones * 3) - task.repeticionesRealizadas).toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
@@ -323,7 +344,6 @@ fun ItemDetails(
             sliderAndCheckbox(
                 totalRepeticiones = task.totalRepeticiones,
                 sliderValue = task.serie1,
-                completed = task.completado,
                 sliderNumero = 1,
                 updateSliderTask = updateSliderTask,
             )
@@ -331,7 +351,6 @@ fun ItemDetails(
             sliderAndCheckbox(
                 totalRepeticiones = task.totalRepeticiones,
                 sliderValue = task.serie2,
-                completed = task.completado,
                 sliderNumero = 2,
                 updateSliderTask = updateSliderTask,
             )
@@ -339,7 +358,6 @@ fun ItemDetails(
             sliderAndCheckbox(
                 totalRepeticiones = task.totalRepeticiones,
                 sliderValue = task.serie3,
-                completed = task.completado,
                 sliderNumero = 3,
                 updateSliderTask = updateSliderTask,
             )
@@ -352,6 +370,25 @@ fun ItemDetails(
         }
     }
 }
+
+@Composable
+fun cardTitle(
+    taskName: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = taskName,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
 
 @Composable
 private fun ItemDetailsRow(

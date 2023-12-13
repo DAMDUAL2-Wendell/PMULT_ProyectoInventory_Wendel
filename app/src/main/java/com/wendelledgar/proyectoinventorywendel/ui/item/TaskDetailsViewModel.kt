@@ -7,8 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -29,7 +27,7 @@ class ItemDetailsViewModel(
 
     init {
         viewModelScope.launch {
-            taskDetailState = tasksRepository.getItemStream(itemId)
+            taskDetailState = tasksRepository.getTaskStream(itemId)
                 .filterNotNull()
                 .first()
                 .toItemUiState(true)
@@ -39,7 +37,7 @@ class ItemDetailsViewModel(
     suspend fun reduceQuantityByOne() {
             val currentTask = taskDetailState.itemDetails.toItem()
             if (currentTask.totalRepeticiones > 0 && currentTask.repeticionesRealizadas < (currentTask.totalRepeticiones * 3)) {
-                tasksRepository.updateItem(
+                tasksRepository.updateTask(
                     currentTask.copy(
                         //quantity = currentTask.quantity - 1,
                         repeticionesRealizadas = currentTask.repeticionesRealizadas + 1
@@ -64,7 +62,7 @@ class ItemDetailsViewModel(
                 else -> currentTask
             }
 
-            tasksRepository.updateItem(tareaActualizada)
+            tasksRepository.updateTask(tareaActualizada)
 
             taskDetailState = taskDetailState.copy(itemDetails = tareaActualizada.toItemDetails())
 
@@ -77,7 +75,7 @@ class ItemDetailsViewModel(
 
     suspend fun deleteItem() {
 
-            tasksRepository.deleteItem(taskDetailState.itemDetails.toItem())
+            tasksRepository.deletetask(taskDetailState.itemDetails.toItem())
     }
 }
 

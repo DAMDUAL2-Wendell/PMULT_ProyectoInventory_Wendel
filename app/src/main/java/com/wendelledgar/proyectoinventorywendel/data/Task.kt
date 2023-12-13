@@ -20,7 +20,3 @@ data class Task(
     val completado: Boolean = false,
 )
 
-object seriesPorDefecto{
-    val numeroRepeticiones: Int = 15
-}
-

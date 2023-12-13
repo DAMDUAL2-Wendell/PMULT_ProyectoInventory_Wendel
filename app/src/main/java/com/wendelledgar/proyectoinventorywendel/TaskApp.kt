@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -107,28 +108,17 @@ fun topAppBar(
 }
 
 @Composable
-fun bottomAppBar(
+fun bottomAppBarHome(
     onClickAddItem : () -> Unit
 ) {
     androidx.compose.material3.BottomAppBar(
-        modifier = Modifier.height(dimensionResource(id = R.dimen.bottom_bar)),
-        //modifier = Modifier.background(color = MaterialTheme.colorScheme.primaryContainer),
+        modifier = Modifier
+            .height(dimensionResource(id = R.dimen.bottom_bar)),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary,
         actions = {
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Filled.Check, contentDescription = "")
-            }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    Filled.Edit,
-                    contentDescription = "",
-                )
-            }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    Filled.Delete,
-                    contentDescription = "",
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
+            IconButton(onClick = {}) {
+                Icon(Filled.Home, contentDescription = "")
             }
         },
         floatingActionButton = {
@@ -139,6 +129,24 @@ fun bottomAppBar(
 
             ) {
                 Icon(Filled.Add, "")
+            }
+        }
+    )
+
+}
+
+@Composable
+fun bottomAppBarDetail(
+    navigateBack : () -> Unit
+) {
+    androidx.compose.material3.BottomAppBar(
+        modifier = Modifier
+            .height(dimensionResource(id = R.dimen.bottom_bar)),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary,
+        actions = {
+            IconButton(onClick = navigateBack) {
+                Icon(Filled.Home, contentDescription = "")
             }
         }
     )

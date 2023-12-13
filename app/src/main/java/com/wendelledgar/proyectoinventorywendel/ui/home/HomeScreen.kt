@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -54,7 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
-import com.wendelledgar.proyectoinventorywendel.bottomAppBar
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarHome
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
@@ -80,12 +81,12 @@ fun HomeScreen(
     val homeUiState by viewModel.homeUiState.collectAsState()
 
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-            ,
-        //containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
-        contentColor = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.secondary,
         bottomBar = {
-                    bottomAppBar(
+                    bottomAppBarHome(
                         onClickAddItem = navigateToItemEntry,
                     )
         },
@@ -97,20 +98,6 @@ fun HomeScreen(
                 modifier = Modifier.height(dimensionResource(id = R.dimen.bottom_bar))
             )
         },
-/*
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = navigateToItemEntry,
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.item_entry_title)
-                )
-            }
-        },*/
-
     ) { innerPadding ->
         HomeBody(
             taskList = homeUiState.taskList,
@@ -186,8 +173,8 @@ private fun InventoryItem(
     )
 
     val cardBackgroundColorCompleted =
-        if (task.completado) MaterialTheme.colorScheme.inverseOnSurface
-        else MaterialTheme.colorScheme.surfaceVariant
+        if (task.completado) MaterialTheme.colorScheme.tertiary
+        else MaterialTheme.colorScheme.primaryContainer
 
     Card(
         modifier = modifier,
@@ -206,16 +193,6 @@ private fun InventoryItem(
                 )
                 .padding(dimensionResource(id = R.dimen.padding_small)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
-            /*
-            modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.padding_large))
-                .background(
-                    if (task.completado) MaterialTheme.colorScheme.inverseOnSurface
-                    else MaterialTheme.colorScheme.surfaceVariant
-                ),
-
-
-            */
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth()
@@ -223,7 +200,9 @@ private fun InventoryItem(
 
                 if(task.completado){
                     Button(onClick = { /*TODO*/ }) {
-                        Text(text = "X")
+                        Text(
+                            text = "X"
+                        )
                     }
                 }
 
@@ -246,7 +225,20 @@ private fun InventoryItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                     Column {
-                        expandButton(expanded = expanded, onClick = { expanded = !expanded })
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    MaterialTheme.colorScheme.tertiary,
+                                    shape = MaterialTheme.shapes.extraLarge
+                                )
+                                .size(dimensionResource(id = R.dimen.boton_extender))
+                        ) {
+                            expandButton(
+                                expanded = expanded,
+                                onClick = { expanded = !expanded }
+                            )
+                        }
+
 
                     }
                 
@@ -254,28 +246,17 @@ private fun InventoryItem(
 
                         completadoCheckbox(task = task, updateTaskCompletion = updateTaskCompletion)
 
-
-
             }
             if (expanded) {
                 infoCardTask(
                     key = R.string.repeticionesRealizadas,
-                    value = task.repeticionesRealizadas.toString()
+                    value = ((task.repeticionesRealizadas / (task.totalRepeticiones*3) ) * 100).toString()
                 )
 
                 infoCardTask(
                     key = R.string.description,
                     value = task.description
                 )
-
-
-                /*
-                infoCardTask(
-                    key = task.name,
-                    value = task.name
-                )*/
-
-
 
             }
 

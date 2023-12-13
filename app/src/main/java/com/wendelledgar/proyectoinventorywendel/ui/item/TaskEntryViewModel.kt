@@ -30,7 +30,7 @@ class ItemEntryViewModel(private val tasksRepository: TasksRepository) : ViewMod
 
     suspend fun saveItem() {
         if (validateInput()) {
-            tasksRepository.insertItem(itemUiState.itemDetails.toItem())
+            tasksRepository.insertTask(itemUiState.itemDetails.toItem())
         }
     }
 }

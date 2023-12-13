@@ -1,15 +1,20 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
@@ -34,12 +39,21 @@ fun ItemEditScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
     Scaffold(
         topBar = {
             topAppBar(
                 title = stringResource(ItemEditDestination.titleRes),
                 canNavigateBack = true,
-                navigateUp = onNavigateUp
+                navigateUp = onNavigateUp,
+                scrollBehavior = scrollBehavior,
+                modifier = Modifier.height(dimensionResource(id = R.dimen.bottom_bar))
+            )
+        },
+        bottomBar = {
+            bottomAppBarDetail(
+                navigateBack = navigateBack,
             )
         },
         modifier = modifier

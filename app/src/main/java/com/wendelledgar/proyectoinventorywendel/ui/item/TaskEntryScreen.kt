@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,6 +16,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -24,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
@@ -46,14 +50,23 @@ fun ItemEntryScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
     Scaffold(
         topBar = {
             topAppBar(
                 title = stringResource(ItemEntryDestination.titleRes),
                 canNavigateBack = canNavigateBack,
-                navigateUp = onNavigateUp //navigateUp
+                navigateUp = onNavigateUp,
+                scrollBehavior = scrollBehavior,
+                modifier = Modifier.height(dimensionResource(id = R.dimen.bottom_bar))
             )
-        }
+        },
+        bottomBar = {
+            bottomAppBarDetail(
+                navigateBack = navigateBack,
+            )
+        },
     ) { innerPadding ->
         ItemEntryBody(
             itemUiState = viewModel.itemUiState,
@@ -137,47 +150,10 @@ fun ItemInputForm(
         sliderAndCheckbox(
             sliderValue = itemDetails.serie1?:0,
             sliderNumero = 1,
-            completed = itemDetails.completed?:false,
             totalRepeticiones = itemDetails.quantity?:15,
             updateSliderTask = {uno,dos->{}}
         )
 
-        /*
-        OutlinedTextField(
-            value = itemDetails.quantity,
-            onValueChange = { onValueChange(itemDetails.copy(quantity = it)) },
-            label = { Text(stringResource(R.string.cantidad_series)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true
-        )
-*/
-
-
-/*
-        OutlinedTextField(
-            value = itemDetails.seriesRealizadas,
-            onValueChange = { onValueChange(itemDetails.copy(seriesRealizadas = it)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            label = { Text(stringResource(R.string.item_seriesRealizadas_req)) },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
-            leadingIcon = { Text(Currency.getInstance(Locale.getDefault()).symbol) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true
-        )
-
-        */
         if (enabled) {
             Text(
                 text = stringResource(R.string.required_fields),
