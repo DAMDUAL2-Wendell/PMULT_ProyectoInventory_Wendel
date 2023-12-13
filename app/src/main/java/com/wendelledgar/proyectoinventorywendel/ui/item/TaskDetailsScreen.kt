@@ -211,12 +211,11 @@ fun sliders(
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Slider(
-                value = if (isCheckedSlider2) seriesPorDefecto.numeroRepeticiones.toFloat() else slider2?.toFloat() ?: 0f,
+                value = slider2.toFloat(),
                 onValueChange = {
-                    if (!isCheckedSlider2) {
                         slider2 = it.toInt()
                         updateSliderTask(2, it.toInt())
-                    }
+                        if(slider2.toInt() == seriesPorDefecto.numeroRepeticiones) isCheckedSlider2 = true else isCheckedSlider2 = false
                 },
                 valueRange = 0f..seriesPorDefecto.numeroRepeticiones.toFloat(),
                 steps = (seriesPorDefecto.numeroRepeticiones + 1).toInt(),
