@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
 import androidx.annotation.StringRes
@@ -46,7 +30,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.data.Task
-import com.wendelledgar.proyectoinventorywendel.data.seriesPorDefecto
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
@@ -85,7 +67,8 @@ fun ItemDetailsScreen(
     modifier: Modifier = Modifier
 ) {
 
-    val uiState = viewModel.uiState.collectAsState().value
+    val uiState = viewModel.taskDetailState
+
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -98,7 +81,7 @@ fun ItemDetailsScreen(
             )
         }, floatingActionButton = {
             FloatingActionButton(
-                onClick = { navigateToEditItem(viewModel.uiState.value.itemDetails.id) },
+                onClick = { navigateToEditItem(viewModel.taskDetailState.itemDetails.id) },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
 
@@ -115,16 +98,24 @@ fun ItemDetailsScreen(
             onTerminarSerie = {
                 coroutineScope.launch {
                     viewModel.reduceQuantityByOne()
+                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
                 }
             },
-            updateSliderTask = {numSlider, valor ->
+            updateUiState = {
+                coroutineScope.launch {
+                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
+                }
+            },
+            updateSliderTask = { numSlider, valor ->
                 coroutineScope.launch {
                     viewModel.updateSliderTask(numSlider, valor)
+                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
                 }
             },
             onDelete = {
                 coroutineScope.launch {
                     viewModel.deleteItem()
+                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
                     navigateBack()
                 }
             },
@@ -139,7 +130,8 @@ fun ItemDetailsScreen(
 private fun ItemDetailsBody(
     itemDetailsUiState: ItemUiState,
     onTerminarSerie: () -> Unit,
-    updateSliderTask: (Int,Int) -> Unit,
+    updateUiState: () -> Unit,
+    updateSliderTask: (Int, Int) -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -150,7 +142,6 @@ private fun ItemDetailsBody(
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
         ItemDetails(
-            itemUiState = itemDetailsUiState,
             task = itemDetailsUiState.itemDetails.toItem(),
             updateSliderTask = updateSliderTask,
             modifier = Modifier.fillMaxWidth()
@@ -184,15 +175,23 @@ private fun ItemDetailsBody(
 }
 
 @Composable
-fun sliders(
-    task: Task,
+fun sliderAndCheckbox(
+    sliderValue: Int,
+    completed: Boolean,
+    sliderNumero: Int,
+    totalRepeticiones: Int,
     updateSliderTask: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    var slider2 by rememberSaveable { mutableStateOf(task.serie2) }
-    var isCheckedSlider2 by rememberSaveable { mutableStateOf(false) }
-    var previousSlider2Value by rememberSaveable { mutableStateOf(0f) }
+    //var sliderValue by rememberSaveable { mutableStateOf(sliderValue) }
+
+    var sliderValue = sliderValue
+
+    var previousSliderValue by rememberSaveable { mutableStateOf(0f) }
+
+
+    var sliderCompleted by rememberSaveable { mutableStateOf(completed) }
 
     Box(
         modifier = modifier,
@@ -204,32 +203,33 @@ fun sliders(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = slider2?.toString() ?: "0",
+                text = sliderValue?.toString() ?: "0",
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
             Slider(
-                value = slider2.toFloat(),
+                value = sliderValue.toFloat(),
                 onValueChange = {
-                        slider2 = it.toInt()
-                        updateSliderTask(2, it.toInt())
-                        if(slider2.toInt() == task.quantity) isCheckedSlider2 = true else isCheckedSlider2 = false
+                        sliderValue = it.toInt()
+                        updateSliderTask(sliderNumero, it.toInt())
+                        if(sliderValue.toInt() == totalRepeticiones) sliderCompleted = true else sliderCompleted = false
                 },
-                valueRange = 0f..task.quantity.toFloat(),
-                steps = (task.quantity + 1),
+                valueRange = 0f..totalRepeticiones.toFloat(),
+                steps = (totalRepeticiones),
                 modifier = Modifier.weight(1f)
             )
             Checkbox(
-                checked = isCheckedSlider2,
+                checked = sliderCompleted,
                 onCheckedChange = {
-                    isCheckedSlider2 = it
+                    sliderCompleted = it
                     if (it) {
-                        previousSlider2Value = slider2?.toFloat() ?: 0f
-                        slider2 = task.quantity
-                        updateSliderTask(2, slider2)
+                        previousSliderValue = sliderValue?.toFloat() ?: 0f
+                        sliderValue = totalRepeticiones
+                        updateSliderTask(sliderNumero, sliderValue)
                     } else {
-                        slider2 = previousSlider2Value.toInt()
-                        updateSliderTask(2, previousSlider2Value.toInt())
+                        sliderValue = previousSliderValue.toInt()
+                        updateSliderTask(sliderNumero, previousSliderValue.toInt())
                     }
+
                 }
             )
         }
@@ -239,12 +239,12 @@ fun sliders(
 
 
 @Composable
-fun ProgressBarExample(
+fun progressBar(
     total: Int,
     completed: Int
 ) {
     val progress = if (total > 0) {
-        (completed.toFloat() / total.toFloat())
+        (total.toFloat() - completed.toFloat())
     } else {
         0f
     }
@@ -279,7 +279,6 @@ fun ProgressBarExample(
 
 @Composable
 fun ItemDetails(
-    itemUiState: ItemUiState,
     task: Task,
     updateSliderTask: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
@@ -308,27 +307,46 @@ fun ItemDetails(
             )
             ItemDetailsRow(
                 labelResID = R.string.num_series,
-                itemDetail = ((task.quantity * 3) - task.seriesRealizadas).toString(),
+                itemDetail = ((task.serie1 + task.serie2 + task.serie3) - task.repeticionesRealizadas).toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
             )
             ItemDetailsRow(
-                labelResID = R.string.seriesRealizadas,
-                itemDetail = task.seriesRealizadas.toString(),
+                labelResID = R.string.repeticionesRealizadas,
+                itemDetail = task.repeticionesRealizadas.toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
             )
 
-            sliders(
-                task = task,
-                updateSliderTask = updateSliderTask
+            sliderAndCheckbox(
+                totalRepeticiones = task.totalRepeticiones,
+                sliderValue = task.serie1,
+                completed = task.completado,
+                sliderNumero = 1,
+                updateSliderTask = updateSliderTask,
             )
 
-            ProgressBarExample(
-                total = (task.serie1 + task.serie2 + task.serie3),
-                completed = task.seriesRealizadas
+            sliderAndCheckbox(
+                totalRepeticiones = task.totalRepeticiones,
+                sliderValue = task.serie2,
+                completed = task.completado,
+                sliderNumero = 2,
+                updateSliderTask = updateSliderTask,
+            )
+
+            sliderAndCheckbox(
+                totalRepeticiones = task.totalRepeticiones,
+                sliderValue = task.serie3,
+                completed = task.completado,
+                sliderNumero = 3,
+                updateSliderTask = updateSliderTask,
+            )
+
+            progressBar(
+                total = (task.totalRepeticiones * 3),
+                completed = (task.serie1 + task.serie2 + task.serie3)
             )
 
         }
@@ -377,6 +395,7 @@ fun ItemDetailsScreenPreview() {
                 itemDetails = ItemDetails(1, "Pen", "100", "10")
             ),
             onTerminarSerie = {},
+            updateUiState = {},
             updateSliderTask = {uno,dos -> {}},
             onDelete = {}
         )

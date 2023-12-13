@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Rutinas</string>
-    <string name="attention">Attention</string>
-    <string name="back_button">Back</string>
+    <string name="attention">Atención</string>
+    <string name="back_button">Atrás</string>
     <string name="delete">Eliminar</string>
-    <string name="delete_question">Are you sure you want to delete?</string>
+    <string name="delete_question">Estás seguro de querer eliminar ésta tarea?</string>
     <string name="no_item_description">La lista de tareas está vacía.\nPulsa el botón + \npara agregar una tarea.</string>
     <string name="edit_item_title">Editar tarea</string>
     <string name="item">Item</string>
@@ -12,14 +12,15 @@
     <string name="item_name_req">Nombre de tarea</string>
     <string name="item_seriesRealizadas_req">Series realizadas</string>
     <string name="no">No</string>
-    <string name="seriesRealizadas">Series realizadas</string>
+    <string name="repeticionesRealizadas">Repeticiones realizadas</string>
     <string name="completado">Completado</string>
     <string name="num_series">Restantes</string>
     <string name="series_restantes">%d restantes</string>
-    <string name="cantidad_series">Numero de series a realizar</string>
+    <string name="cantidad_series">Numero de repeticiones a realizar</string>
+    <string name="description">Descripción</string>
     <string name="save_action">Guardar</string>
     <string name="btn_terminar_serie">Terminar 1 serie</string>
-    <string name="yes">Yes</string>
+    <string name="yes">Si</string>
     <string name="required_fields">*Campos requeridos</string>
     <string name="quantity">Cantidad</string>
 </resources>

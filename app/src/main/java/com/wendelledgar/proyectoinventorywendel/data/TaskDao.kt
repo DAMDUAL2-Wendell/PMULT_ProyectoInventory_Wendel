@@ -10,19 +10,18 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE) // Nesta app solo insertamos dende un lugar
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(task: Task)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(taskList: List<Task>)
 
     @Update
     suspend fun update(task: Task)
-
     @Delete
     suspend fun delete(task: Task)
-
     @Query("SELECT * from tasks WHERE id = :id")
-    fun getItem(id: Int): Flow<Task> // Como devolve Flow non hai que chamala detro do scope da corrutina
-
+    fun getItem(id: Int): Flow<Task>
     @Query("SELECT * from tasks ORDER BY id ASC")
     fun getAllItems(): Flow<List<Task>>
 

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.wendelledgar.proyectoinventorywendel
@@ -51,45 +35,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.wendelledgar.proyectoinventorywendel.ui.navigation.InventoryNavHost
+import com.wendelledgar.proyectoinventorywendel.ui.navigation.TaskNavHost
 
-/**
- * Top level composable that represents screens for the application.
- */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun InventoryApp(navController: NavHostController = rememberNavController()) {
-    InventoryNavHost(navController = navController)
+fun TaskApp(navController: NavHostController = rememberNavController()) {
+    TaskNavHost(navController = navController)
 }
 
-/**
- * App bar to display title and conditionally display the back navigation.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InventoryTopAppBar(
-    title: String,
-    canNavigateBack: Boolean,
-    modifier: Modifier = Modifier,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-    navigateUp: () -> Unit = {}
-) {
-    CenterAlignedTopAppBar(
-        title = { Text(title) },
-        modifier = modifier,
-        scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            }
-        }
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -162,18 +115,18 @@ fun bottomAppBar(
         //modifier = Modifier.background(color = MaterialTheme.colorScheme.primaryContainer),
         actions = {
             IconButton(onClick = { /* do something */ }) {
-                Icon(Filled.Check, contentDescription = "Localized description")
+                Icon(Filled.Check, contentDescription = "")
             }
             IconButton(onClick = { /* do something */ }) {
                 Icon(
                     Filled.Edit,
-                    contentDescription = "Localized description",
+                    contentDescription = "",
                 )
             }
             IconButton(onClick = { /* do something */ }) {
                 Icon(
                     Filled.Delete,
-                    contentDescription = "Localized description",
+                    contentDescription = "",
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
@@ -185,7 +138,7 @@ fun bottomAppBar(
                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
 
             ) {
-                Icon(Filled.Add, "Localized description")
+                Icon(Filled.Add, "")
             }
         }
     )

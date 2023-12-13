@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
 import androidx.annotation.StringRes
@@ -34,21 +18,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.wendelledgar.proyectoinventorywendel.InventoryTopAppBar
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.theme.InventoryTheme
 import kotlinx.coroutines.launch
-import java.util.Currency
-import java.util.Locale
 
 object ItemEntryDestination : NavigationDestination {
     override val route = "item_entry"
@@ -64,7 +44,6 @@ fun ItemEntryScreen(
     viewModel: ItemEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
-    // Crear un CoroutineScope vinculado ao componible ItemEntryScreen()
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -142,10 +121,10 @@ fun ItemInputForm(
         )
 
         outliedTextField(
-            value = itemDetails.seriesRealizadas,
-            label = R.string.item_seriesRealizadas_req,
-            onValueChange = { onValueChange(itemDetails.copy(seriesRealizadas = it)) },
-            keyboardType = KeyboardType.Decimal,
+            value = itemDetails.description,
+            label = R.string.description,
+            onValueChange = { onValueChange(itemDetails.copy(description = it)) },
+            keyboardType = KeyboardType.Text,
         )
 
         outliedTextField(
@@ -155,7 +134,13 @@ fun ItemInputForm(
             keyboardType = KeyboardType.Decimal,
         )
 
-
+        sliderAndCheckbox(
+            sliderValue = itemDetails.serie1?:0,
+            sliderNumero = 1,
+            completed = itemDetails.completed?:false,
+            totalRepeticiones = itemDetails.quantity?:15,
+            updateSliderTask = {uno,dos->{}}
+        )
 
         /*
         OutlinedTextField(
@@ -201,6 +186,8 @@ fun ItemInputForm(
         }
     }
 }
+
+
 
 @Composable
 fun outliedTextField(

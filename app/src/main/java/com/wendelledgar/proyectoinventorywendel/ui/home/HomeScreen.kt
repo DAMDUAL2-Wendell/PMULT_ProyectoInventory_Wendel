@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.wendelledgar.proyectoinventorywendel.ui.home
 
 import android.annotation.SuppressLint
@@ -40,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -80,9 +65,6 @@ object HomeDestination : NavigationDestination {
     override val titleRes = R.string.app_name
 }
 
-/**
- * Entry route for Home screen
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -198,8 +180,6 @@ private fun InventoryItem(
 
     var expanded by remember { mutableStateOf(false) }
 
-    var completedTask by remember{ mutableStateOf(task.completado?:false) }
-
     val cardBackgroundColor by animateColorAsState(
         targetValue = if (expanded) MaterialTheme.colorScheme.tertiaryContainer else
             MaterialTheme.colorScheme.primaryContainer, label = ""
@@ -240,6 +220,16 @@ private fun InventoryItem(
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
+
+                if(task.completado){
+                    Button(onClick = { /*TODO*/ }) {
+                        Text(text = "X")
+                    }
+                }
+
+                
+                
+                
                 cardTaskName(
                     taskName = task.name,
                     modifier = Modifier
@@ -262,16 +252,23 @@ private fun InventoryItem(
                 
                 Spacer(modifier = Modifier.weight(1f))
 
-                        contentCompletadoCheckboxTask(task = task, updateTaskCompletion = updateTaskCompletion)
+                        completadoCheckbox(task = task, updateTaskCompletion = updateTaskCompletion)
 
 
 
             }
             if (expanded) {
                 infoCardTask(
-                    key = R.string.quantity,
-                    value = task.quantity.toInt().toString()
+                    key = R.string.repeticionesRealizadas,
+                    value = task.repeticionesRealizadas.toString()
                 )
+
+                infoCardTask(
+                    key = R.string.description,
+                    value = task.description
+                )
+
+
                 /*
                 infoCardTask(
                     key = task.name,
@@ -287,7 +284,7 @@ private fun InventoryItem(
 }
 
 @Composable
-fun contentCompletadoCheckboxTask(
+fun completadoCheckbox(
     task: Task,
     updateTaskCompletion: (Int, Boolean) -> Unit,
     modifier:Modifier = Modifier
@@ -307,35 +304,10 @@ fun contentCompletadoCheckboxTask(
     ) {
 
         Spacer(Modifier.weight(1f))
-        CheckBoxCompletado(
+        switchCompleted(
             task = task,
             updateTaskCompletion = updateTaskCompletion
         )
-    }
-}
-
-@Composable
-fun contentCompletadoCheckboxTask2(
-    task: Task,
-    updateTaskCompletion: (Int, Boolean) -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column {
-            Text(
-                text = stringResource(R.string.completado)
-            )
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        Column {
-            CheckBoxCompletado(
-                task = task,
-                updateTaskCompletion = updateTaskCompletion
-            )
-        }
     }
 }
 
@@ -442,11 +414,11 @@ fun expandButton(
 
 
 @Composable
-fun CheckBoxCompletado(
+fun switchCompleted(
     task: Task,
     updateTaskCompletion: (Int, Boolean) -> Unit,
 ) {
-    var checked by remember { mutableStateOf(task.completado) }
+    var checked = task.completado
 
     Switch(
         checked = checked,
