@@ -16,19 +16,26 @@
 
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * ViewModel to retrieve, update and delete an item from the [TasksRepository]'s data source.
@@ -44,49 +51,52 @@ class ItemDetailsViewModel(
 
     private val itemId: Int = checkNotNull(savedStateHandle[ItemDetailsDestination.itemIdArg])
 
-    val uiState: MutableStateFlow<ItemDetailsUiState> = MutableStateFlow(ItemDetailsUiState())
+    private val _uiState = MutableStateFlow(ItemUiState())
+    val uiState: StateFlow<ItemUiState> get() = _uiState
+
     init {
-        tasksRepository.getItemStream(itemId)
-            .filterNotNull()
-            .map {
-                ItemDetailsUiState(outOfStock = it.quantity <= 0, itemDetails = it.toItemDetails())
-            }
-            .onEach { updatedState ->
-                uiState.value = updatedState
-            }
-            .launchIn(viewModelScope)
-    }
-
-
-    suspend fun reduceQuantityByOne() {
-        val currentTask = uiState.value.itemDetails.toItem()
-        if(currentTask.quantity > 0) {
-            tasksRepository.updateItem(
-                currentTask.copy(
-                    quantity = currentTask.quantity - 1,
-                    seriesRealizadas = currentTask.seriesRealizadas + 1
-                )
-            )
+        viewModelScope.launch {
+            _uiState.value = tasksRepository.getItemStream(itemId)
+                .filterNotNull()
+                .first()
+                .toItemUiState(true)
         }
     }
 
-     suspend fun updateSliderTask(numSlider: Int, numeroRepeticiones: Int){
-         val currentTask = uiState.value.itemDetails.toItem()
+    suspend fun reduceQuantityByOne() {
+            val currentTask = _uiState.value.itemDetails.toItem()
+            if (currentTask.quantity > 0) {
+                tasksRepository.updateItem(
+                    currentTask.copy(
+                        quantity = currentTask.quantity - 1,
+                        seriesRealizadas = currentTask.seriesRealizadas + 1
+                    )
+                )
+                _uiState.value = _uiState.value.copy(itemDetails = currentTask.copy(
+                    quantity = currentTask.quantity - 1,
+                    seriesRealizadas = currentTask.seriesRealizadas + 1
+                ).toItemDetails())
+            }
+    }
+    suspend fun updateSliderTask(numSlider: Int, numeroRepeticiones: Int) {
 
-             val tareaActualizada = when(numSlider) {
-                 1 -> currentTask.copy(serie1 = numeroRepeticiones)
-                 2 -> currentTask.copy(serie2 = numeroRepeticiones)
-                 3 -> currentTask.copy(serie3 = numeroRepeticiones)
-                 else -> currentTask
-             }
+            val currentTask = _uiState.value.itemDetails.toItem()
 
-             tasksRepository.updateItem(tareaActualizada)
+            val tareaActualizada = when(numSlider) {
+                1 -> currentTask.copy(serie1 = numeroRepeticiones)
+                2 -> currentTask.copy(serie2 = numeroRepeticiones)
+                3 -> currentTask.copy(serie3 = numeroRepeticiones)
+                else -> currentTask
+            }
 
-          uiState.value = uiState.value.copy(itemDetails = tareaActualizada.toItemDetails())
+            tasksRepository.updateItem(tareaActualizada)
+            _uiState.value = _uiState.value.copy(itemDetails = tareaActualizada.toItemDetails())
+
     }
 
     suspend fun deleteItem() {
-        tasksRepository.deleteItem(uiState.value.itemDetails.toItem())
+
+            tasksRepository.deleteItem(_uiState.value.itemDetails.toItem())
     }
 }
 

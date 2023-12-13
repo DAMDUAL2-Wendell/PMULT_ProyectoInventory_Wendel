@@ -69,9 +69,9 @@ data class ItemDetails(
     val name: String = "",
     val seriesRealizadas: String = "",
     val quantity: String = "",
-    val serie1: Int = 0,
-    val serie2: Int = 0,
-    val serie3: Int = 0
+    val serie1: Int? = null,
+    val serie2: Int? = null,
+    val serie3: Int? = null
 )
 
 /**
@@ -84,9 +84,9 @@ fun ItemDetails.toItem(): Task = Task(
     name = name,
     seriesRealizadas = seriesRealizadas.toIntOrNull() ?: 0,
     quantity = quantity.toIntOrNull() ?: 0,
-    serie1 = serie1,
-    serie2 = serie2,
-    serie3 = serie3
+    serie1 = serie1 ?: 0,
+    serie2 = serie2 ?: 0,
+    serie3 = serie3 ?: 0
 )
 
 
