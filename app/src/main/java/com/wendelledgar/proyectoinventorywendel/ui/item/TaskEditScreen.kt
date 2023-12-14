@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
-import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
@@ -52,8 +52,9 @@ fun TaskEditScreen(
             )
         },
         bottomBar = {
-            bottomAppBarDetail(
-                navigateBack = navigateBack,
+            bottomAppBarEntry(
+                navigateToHome = navigateBack,
+                navigateToEdit = onNavigateUp
             )
         },
         modifier = modifier

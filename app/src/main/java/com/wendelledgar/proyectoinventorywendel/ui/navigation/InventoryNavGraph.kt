@@ -1,5 +1,6 @@
 package com.wendelledgar.proyectoinventorywendel.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -15,6 +16,7 @@ import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEditDestination
 import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEditScreen
 import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEntryDestination
 import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEntryScreen
+
 @Composable
 fun TaskNavHost(
     navController: NavHostController,
@@ -28,13 +30,14 @@ fun TaskNavHost(
         composable(route = HomeDestination.route) {
             HomeScreen(
                 navigateToTaskEntry = { navController.navigate(TaskEntryDestination.route) },
-                navigateToTaskUpdate = {navController.navigate("${TaskDetailsDestination.route}/${it}")}
+                navigateToTaskUpdate = { navController.navigate("${TaskDetailsDestination.route}/${it}") }
             )
         }
         composable(route = TaskEntryDestination.route) {
             TaskEntryScreen(
                 navigateBack = { navController.popBackStack() },
-                onNavigateUp = { navController.navigateUp() }
+                onNavigateUp = { navController.navigateUp() },
+                navigateHome = { navController.navigate(HomeDestination.route) }
             )
         }
         composable(

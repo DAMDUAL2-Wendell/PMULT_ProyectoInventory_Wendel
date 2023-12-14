@@ -27,7 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
-import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
@@ -44,6 +44,7 @@ object TaskEntryDestination : NavigationDestination {
 fun TaskEntryScreen(
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
+    navigateHome: () -> Unit,
     canNavigateBack: Boolean = true,
     viewModel: TaskEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -63,8 +64,9 @@ fun TaskEntryScreen(
             )
         },
         bottomBar = {
-            bottomAppBarDetail(
-                navigateBack = navigateBack,
+            bottomAppBarEntry(
+                navigateToHome = navigateHome,
+                navigateToEdit = onNavigateUp
             )
         },
     ) { innerPadding ->
@@ -145,7 +147,7 @@ fun TaskInputForm(
         outliedTextField(
             value = taskDetails.quantity,
             label = R.string.cantidad_series,
-            onValueChange = { onValueChange(taskDetails.copy(quantity = it.toInt())) },
+            onValueChange = { onValueChange(taskDetails.copy(quantity = it?.toIntOrNull())) },
             keyboardType = KeyboardType.Decimal,
         )
 

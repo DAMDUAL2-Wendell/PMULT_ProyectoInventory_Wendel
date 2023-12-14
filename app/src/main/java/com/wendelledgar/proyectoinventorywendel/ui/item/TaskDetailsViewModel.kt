@@ -62,7 +62,7 @@ class TaskDetailsViewModel(
 
             taskDetailState = taskDetailState.copy(taskDetails = updatedTask.totaskDetails())
 
-            Log.d("TaskDetailsViewModel", "suspend fun aumentarRepeticiones -  Repeticiones aumentadas, nueva cantidad: ${updatedTask.totalRepeticiones}")
+            //Log.d("TaskDetailsViewModel", "suspend fun aumentarRepeticiones -  Repeticiones aumentadas, nueva cantidad: ${updatedTask.totalRepeticiones}")
 
 
         }else{
@@ -108,16 +108,11 @@ class TaskDetailsViewModel(
 
                 taskDetailState = taskDetailState.copy(taskDetails = updatedTask.totaskDetails())
 
-                Log.d("TaskDetailsViewModel", "suspend fun aumentarRepeticiones -  Repeticiones aumentadas, nueva cantidad: ${updatedTask.totalRepeticiones}")
+                //Log.d("TaskDetailsViewModel", "suspend fun aumentarRepeticiones -  Repeticiones aumentadas, nueva cantidad: ${updatedTask.totalRepeticiones}")
 
             }
 
-
-
         }
-
-
-
 
     }
 

@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
+import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
@@ -89,8 +90,10 @@ fun TaskDetailsScreen(
         bottomBar = {
             bottomAppBarDetail(
                 navigateBack = navigateBack,
+                navigateToEdit = { navigateToEditTask(viewModel.taskDetailState.taskDetails.id) }
             )
         },
+        /*
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navigateToEditTask(viewModel.taskDetailState.taskDetails.id) },
@@ -103,7 +106,9 @@ fun TaskDetailsScreen(
                     contentDescription = stringResource(R.string.edit_task_title),
                 )
             }
-        }, modifier = modifier
+        },
+        */
+        modifier = modifier
     ) { innerPadding ->
         TaskDetailsBody(
             taskDetailsUiState = uiState,

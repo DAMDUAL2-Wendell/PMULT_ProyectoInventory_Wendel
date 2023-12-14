@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.BottomAppBarDefaults
@@ -137,7 +135,8 @@ fun bottomAppBarHome(
 
 @Composable
 fun bottomAppBarDetail(
-    navigateBack : () -> Unit
+    navigateBack: () -> Unit,
+    navigateToEdit: () -> Unit,
 ) {
     androidx.compose.material3.BottomAppBar(
         modifier = Modifier
@@ -147,6 +146,47 @@ fun bottomAppBarDetail(
         actions = {
             IconButton(onClick = navigateBack) {
                 Icon(Filled.Home, contentDescription = "")
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = navigateToEdit,
+                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+
+                ) {
+                Icon(Filled.Edit, "")
+            }
+        }
+    )
+
+}
+
+
+@Composable
+fun bottomAppBarEntry(
+    navigateToHome : () -> Unit,
+    navigateToEdit: () -> Unit,
+) {
+    androidx.compose.material3.BottomAppBar(
+        modifier = Modifier
+            .height(dimensionResource(id = R.dimen.bottom_bar)),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary,
+        actions = {
+            IconButton(onClick = navigateToHome) {
+                Icon(Filled.Home, contentDescription = "")
+            }
+        },
+
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = navigateToEdit,
+                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+
+                ) {
+                Icon(Filled.ArrowBack, "")
             }
         }
     )
