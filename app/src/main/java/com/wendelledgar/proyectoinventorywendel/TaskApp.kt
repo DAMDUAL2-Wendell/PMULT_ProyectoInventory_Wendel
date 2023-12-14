@@ -136,6 +136,7 @@ fun bottomAppBarHome(
 @Composable
 fun bottomAppBarDetail(
     navigateBack: () -> Unit,
+    navigateToHome : () -> Unit,
     navigateToEdit: () -> Unit,
 ) {
     androidx.compose.material3.BottomAppBar(
@@ -144,7 +145,7 @@ fun bottomAppBarDetail(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.primary,
         actions = {
-            IconButton(onClick = navigateBack) {
+            IconButton(onClick = navigateToHome) {
                 Icon(Filled.Home, contentDescription = "")
             }
         },

@@ -68,6 +68,7 @@ object TaskDetailsDestination : NavigationDestination {
 fun TaskDetailsScreen(
     navigateToEditTask: (Int) -> Unit,
     navigateBack: () -> Unit,
+    navigateToHome: () -> Unit,
     viewModel: TaskDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier
 ) {
@@ -91,6 +92,7 @@ fun TaskDetailsScreen(
         bottomBar = {
             bottomAppBarDetail(
                 navigateBack = navigateBack,
+                navigateToHome = navigateToHome,
                 navigateToEdit = { navigateToEditTask(viewModel.taskDetailState.taskDetails.id) }
             )
         },
@@ -167,9 +169,6 @@ private fun TaskDetailsBody(
         ) {
             Text(stringResource(R.string.diminuir_series))
         }
-
-
-
 
         OutlinedButton(
             onClick = { deleteConfirmationRequired = true },

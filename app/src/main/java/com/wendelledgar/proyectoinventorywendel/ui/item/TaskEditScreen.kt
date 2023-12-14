@@ -17,6 +17,7 @@ import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
+import com.wendelledgar.proyectoinventorywendel.ui.home.HomeDestination
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ object TaskEditDestination : NavigationDestination {
 fun TaskEditScreen(
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
+    navigateHome: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TaskEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -53,7 +55,7 @@ fun TaskEditScreen(
         },
         bottomBar = {
             bottomAppBarEntry(
-                navigateToHome = navigateBack,
+                navigateToHome = navigateHome,
                 navigateToEdit = onNavigateUp
             )
         },
@@ -62,6 +64,7 @@ fun TaskEditScreen(
         TaskEntryBody(
             taskUiState = viewModel.taskUiState,
             onTaskValueChange = viewModel::updateUiState,
+            changeIconTask = {viewModel.changeIconTask()},
             onSaveClick = {
                 coroutineScope.launch {
                     viewModel.updateTask()
@@ -77,7 +80,7 @@ fun TaskEditScreen(
 @Composable
 fun TaskEditScreenPreview() {
     TaskTheme {
-        TaskEditScreen(navigateBack = { /*Do nothing*/ }, onNavigateUp = { /*Do nothing*/ })
+        TaskEditScreen(navigateBack = { /*Do nothing*/ }, onNavigateUp = { /*Do nothing*/ }, navigateHome = {})
     }
 }
 
@@ -89,6 +92,8 @@ fun TaskEditBodyPreview() {
             TaskDetails(
                 name = "task", seriesRealizadas = "1", quantity = 5
             )
-        ), onTaskValueChange = {}, onSaveClick = {})
+        ), onTaskValueChange = {},
+            changeIconTask = {},
+            onSaveClick = {})
     }
 }

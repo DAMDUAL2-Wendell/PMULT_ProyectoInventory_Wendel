@@ -31,6 +31,7 @@ import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
+import com.wendelledgar.proyectoinventorywendel.ui.home.iconoTask
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
 import kotlinx.coroutines.launch
@@ -74,6 +75,7 @@ fun TaskEntryScreen(
         TaskEntryBody(
             taskUiState = viewModel.taskUiState,
             onTaskValueChange = viewModel::updateUiState,
+            changeIconTask = {viewModel.changeIconTask()},
             onSaveClick = {
                 coroutineScope.launch {
 
@@ -85,6 +87,11 @@ fun TaskEntryScreen(
 
                     }else{
                         Log.d("TaskEntryScreen","la tarea ya existe en la base de datos -> task: ${viewModel.taskUiState.taskDetails.name}")
+
+                        /* Implementar mensaje en View
+
+
+                         */
 
                     }
 
@@ -103,6 +110,7 @@ fun TaskEntryScreen(
 fun TaskEntryBody(
     taskUiState: taskUiState,
     onTaskValueChange: (TaskDetails) -> Unit,
+    changeIconTask: () -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -113,6 +121,7 @@ fun TaskEntryBody(
         TaskInputForm(
             taskDetails = taskUiState.taskDetails,
             onValueChange = onTaskValueChange,
+            changeIconTask = changeIconTask,
             modifier = Modifier.fillMaxWidth(),
         )
         Button(
@@ -131,6 +140,7 @@ fun TaskEntryBody(
 fun TaskInputForm(
     taskDetails: TaskDetails,
     modifier: Modifier = Modifier,
+    changeIconTask: () -> Unit,
     onValueChange: (TaskDetails) -> Unit = {},
     enabled: Boolean = true
 ) {
@@ -162,6 +172,14 @@ fun TaskInputForm(
             onValueChange = { onValueChange(taskDetails.copy(quantity = it?.toIntOrNull())) },
             keyboardType = KeyboardType.Decimal,
         )
+
+        Button(onClick = changeIconTask) {
+            iconoTask(
+                taskDetails.icono?:2130968577
+            )
+        }
+
+
 
         if (!titulo) {
             Text(
@@ -206,6 +224,8 @@ private fun TaskEntryScreenPreview() {
             TaskDetails(
                 name = "task", seriesRealizadas = "1", quantity = 5
             )
-        ), onTaskValueChange = {}, onSaveClick = {})
+        ), onTaskValueChange = {},
+        changeIconTask = {},
+            onSaveClick = {})
     }
 }

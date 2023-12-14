@@ -28,6 +28,12 @@ class TaskEntryViewModel(private val tasksRepository: TasksRepository) : ViewMod
         }
     }
 
+    fun changeIconTask(){
+
+        //tasksRepository.updateTask(taskUiState.taskDetails.toTask().copy(icono = ))
+    }
+
+
     suspend fun saveTask() {
         tasksRepository.insertTask(taskUiState.taskDetails.toTask())
     }
@@ -52,7 +58,8 @@ data class TaskDetails(
     val serie1: Int? = 0,
     val serie2: Int? = 0,
     val serie3: Int? = 0,
-    val completed: Boolean? = false
+    val completed: Boolean? = false,
+    val icono: Int? = 2130968577
 )
 
 fun TaskDetails.toTask(): Task = Task(
@@ -64,7 +71,8 @@ fun TaskDetails.toTask(): Task = Task(
     serie1 = serie1 ?: 0,
     serie2 = serie2 ?: 0,
     serie3 = serie3 ?: 0,
-    completado = completed ?: false
+    completado = completed ?: false,
+    icono = icono?: 2130968577
 )
 
 fun Task.totaskUiState(isEntryValid: Boolean = false): taskUiState = taskUiState(
@@ -81,5 +89,6 @@ fun Task.totaskDetails(): TaskDetails = TaskDetails(
     serie1 = serie1,
     serie2 = serie2,
     serie3 = serie3,
-    completed = completado
+    completed = completado,
+    icono = icono
 )

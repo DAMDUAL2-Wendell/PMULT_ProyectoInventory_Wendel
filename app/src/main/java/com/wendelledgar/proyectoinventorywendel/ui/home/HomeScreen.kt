@@ -208,9 +208,6 @@ private fun taskItem(
                     }
                 }
 
-                
-                
-                
                 cardTaskName(
                     taskName = task.name,
                     modifier = Modifier
@@ -218,7 +215,7 @@ private fun taskItem(
                         .padding(dimensionResource(id = R.dimen.padding_medium))
                 )
                 //Spacer(modifier = Modifier.weight(1f))
-                inocoCardTask(imaxeId = R.drawable.gym_logo_vector_617585_1980)
+                iconoTask(imaxeId = task.icono)
             }
 
 
@@ -365,7 +362,7 @@ fun infoCardTask(
 
 
 @Composable
-fun inocoCardTask(
+fun iconoTask(
     @DrawableRes imaxeId: Int,
     modifier: Modifier = Modifier
 ) {

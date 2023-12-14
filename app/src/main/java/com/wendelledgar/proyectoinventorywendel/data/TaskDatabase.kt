@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import kotlinx.coroutines.runBlocking
 
-@Database(entities = [Task::class], version = 16, exportSchema = false)
+@Database(entities = [Task::class], version = 17, exportSchema = false)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
@@ -34,24 +34,7 @@ abstract class TaskDatabase : RoomDatabase() {
 
 
         private suspend fun tareasPorDefecto(taskDao: TaskDao) {
-            /*
-            val task = Task(
-                name = "Flexiones",
-                description = "Realizar flexiones",
-                completado = false,
-                totalRepeticiones = 15,
-                serie1 = 0,
-                serie2 = 0,
-                serie3 = 0,
-                repeticionesRealizadas = 0,
-            )
-
-            taskDao.insert(task)
-            */
-
-
-
-            val tareasPorDefecto = listOf<Task>(
+              val tareasPorDefecto = listOf<Task>(
                 Task(
                     name = "Flexiones",
                     description = "Realizar flexiones",
@@ -63,8 +46,6 @@ abstract class TaskDatabase : RoomDatabase() {
             )
 
             taskDao.insertAll(tareasPorDefecto)
-
-
 
         }
 

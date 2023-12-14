@@ -18,5 +18,6 @@ data class Task(
     val serie2: Int = 0,
     val serie3: Int = 0,
     val completado: Boolean = false,
+    val icono: Int = 2130968577
 )
 

@@ -48,7 +48,8 @@ fun TaskNavHost(
         ) {
             TaskDetailsScreen(
                 navigateToEditTask = { navController.navigate("${TaskEditDestination.route}/$it") },
-                navigateBack = { navController.navigateUp() }
+                navigateBack = { navController.navigateUp() },
+                navigateToHome = { navController.navigate(HomeDestination.route) }
             )
         }
         composable(
@@ -59,7 +60,8 @@ fun TaskNavHost(
         ) {
             TaskEditScreen(
                 navigateBack = { navController.popBackStack() },
-                onNavigateUp = { navController.navigateUp() }
+                onNavigateUp = { navController.navigateUp() },
+                navigateHome = { navController.navigate(HomeDestination.route) }
             )
         }
     }

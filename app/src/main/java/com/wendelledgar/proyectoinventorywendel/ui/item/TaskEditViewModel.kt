@@ -1,5 +1,6 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,6 +37,10 @@ class TaskEditViewModel(
     fun updateUiState(taskDetails: TaskDetails) {
         taskUiState = taskUiState(taskDetails = taskDetails, isEntryValid = validateInput(taskDetails))
 
+    }
+
+    fun changeIconTask(){
+        Log.d("TaskEditViewModel","Entrando en changeIconTask en TaskEditViewModel")
     }
 
     suspend fun updateTask() {
