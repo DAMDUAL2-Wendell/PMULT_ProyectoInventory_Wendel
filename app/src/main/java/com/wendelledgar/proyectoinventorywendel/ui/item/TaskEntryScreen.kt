@@ -31,21 +31,21 @@ import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
-import com.wendelledgar.proyectoinventorywendel.ui.theme.InventoryTheme
+import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
 import kotlinx.coroutines.launch
 
-object ItemEntryDestination : NavigationDestination {
-    override val route = "item_entry"
-    override val titleRes = R.string.item_entry_title
+object TaskEntryDestination : NavigationDestination {
+    override val route = "task_entry"
+    override val titleRes = R.string.task_entry_title
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemEntryScreen(
+fun TaskEntryScreen(
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
     canNavigateBack: Boolean = true,
-    viewModel: ItemEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: TaskEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -55,7 +55,7 @@ fun ItemEntryScreen(
     Scaffold(
         topBar = {
             topAppBar(
-                title = stringResource(ItemEntryDestination.titleRes),
+                title = stringResource(TaskEntryDestination.titleRes),
                 canNavigateBack = canNavigateBack,
                 navigateUp = onNavigateUp,
                 scrollBehavior = scrollBehavior,
@@ -68,13 +68,13 @@ fun ItemEntryScreen(
             )
         },
     ) { innerPadding ->
-        ItemEntryBody(
-            itemUiState = viewModel.itemUiState,
-            onItemValueChange = viewModel::updateUiState,
+        TaskEntryBody(
+            taskUiState = viewModel.taskUiState,
+            onTaskValueChange = viewModel::updateUiState,
             onSaveClick = {
                 coroutineScope.launch {
-                    viewModel.saveItem()
-                    navigateBack() //popBackStack
+                    viewModel.saveTask()
+                    navigateBack()
                 }
             },
             modifier = Modifier
@@ -86,9 +86,9 @@ fun ItemEntryScreen(
 }
 
 @Composable
-fun ItemEntryBody(
-    itemUiState: ItemUiState,
-    onItemValueChange: (ItemDetails) -> Unit,
+fun TaskEntryBody(
+    taskUiState: taskUiState,
+    onTaskValueChange: (TaskDetails) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -96,14 +96,14 @@ fun ItemEntryBody(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
-        ItemInputForm(
-            itemDetails = itemUiState.itemDetails,
-            onValueChange = onItemValueChange,
-            modifier = Modifier.fillMaxWidth()
+        TaskInputForm(
+            taskDetails = taskUiState.taskDetails,
+            onValueChange = onTaskValueChange,
+            modifier = Modifier.fillMaxWidth(),
         )
         Button(
             onClick = onSaveClick,
-            enabled = itemUiState.isEntryValid,
+            enabled = taskUiState.isEntryValid,
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -114,10 +114,10 @@ fun ItemEntryBody(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemInputForm(
-    itemDetails: ItemDetails,
+fun TaskInputForm(
+    taskDetails: TaskDetails,
     modifier: Modifier = Modifier,
-    onValueChange: (ItemDetails) -> Unit = {},
+    onValueChange: (TaskDetails) -> Unit = {},
     enabled: Boolean = true
 ) {
     Column(
@@ -125,36 +125,31 @@ fun ItemInputForm(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
     ) {
 
+        var titulo = taskDetails.name.isNotBlank()
+
 
         outliedTextField(
-            value = itemDetails.name,
-            label = R.string.item_name_req,
-            onValueChange = { onValueChange(itemDetails.copy(name = it)) },
+            value = taskDetails.name,
+            label = R.string.task_name_req,
+            onValueChange = { onValueChange(taskDetails.copy(name = it)) },
             keyboardType = KeyboardType.Text,
         )
 
         outliedTextField(
-            value = itemDetails.description,
+            value = taskDetails.description,
             label = R.string.description,
-            onValueChange = { onValueChange(itemDetails.copy(description = it)) },
+            onValueChange = { onValueChange(taskDetails.copy(description = it)) },
             keyboardType = KeyboardType.Text,
         )
 
         outliedTextField(
-            value = itemDetails.quantity,
+            value = taskDetails.quantity,
             label = R.string.cantidad_series,
-            onValueChange = { onValueChange(itemDetails.copy(quantity = it.toInt())) },
+            onValueChange = { onValueChange(taskDetails.copy(quantity = it.toInt())) },
             keyboardType = KeyboardType.Decimal,
         )
 
-        sliderAndCheckbox(
-            sliderValue = itemDetails.serie1?:0,
-            sliderNumero = 1,
-            totalRepeticiones = itemDetails.quantity?:15,
-            updateSliderTask = {uno,dos->{}}
-        )
-
-        if (enabled) {
+        if (!titulo) {
             Text(
                 text = stringResource(R.string.required_fields),
                 modifier = Modifier.padding(start = dimensionResource(id = R.dimen.padding_medium))
@@ -191,12 +186,12 @@ fun outliedTextField(
 
 @Preview(showBackground = true)
 @Composable
-private fun ItemEntryScreenPreview() {
-    InventoryTheme {
-        ItemEntryBody(itemUiState = ItemUiState(
-            ItemDetails(
-                name = "Item name", seriesRealizadas = "1", quantity = 5
+private fun TaskEntryScreenPreview() {
+    TaskTheme {
+        TaskEntryBody(taskUiState = taskUiState(
+            TaskDetails(
+                name = "task", seriesRealizadas = "1", quantity = 5
             )
-        ), onItemValueChange = {}, onSaveClick = {})
+        ), onTaskValueChange = {}, onSaveClick = {})
     }
 }

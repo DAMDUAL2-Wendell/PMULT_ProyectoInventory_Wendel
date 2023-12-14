@@ -1,5 +1,6 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +11,7 @@ import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-class ItemDetailsViewModel(
+class TaskDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val tasksRepository: TasksRepository
 ) : ViewModel() {
@@ -19,67 +20,160 @@ class ItemDetailsViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    private val itemId: Int = checkNotNull(savedStateHandle[ItemDetailsDestination.itemIdArg])
+    private val taskId: Int = checkNotNull(savedStateHandle[TaskDetailsDestination.taskIdArg])
 
-    var taskDetailState  by mutableStateOf(ItemUiState())
+    var taskDetailState  by mutableStateOf(taskUiState())
         private set
-    //val uiState: StateFlow<ItemUiState> get() = taskDetailState
+    //val uiState: StateFlow<taskUiState> get() = taskDetailState
 
     init {
         viewModelScope.launch {
-            taskDetailState = tasksRepository.getTaskStream(itemId)
+            taskDetailState = tasksRepository.getTaskStream(taskId)
                 .filterNotNull()
                 .first()
-                .toItemUiState(true)
+                .totaskUiState(true)
         }
     }
 
-    suspend fun reduceQuantityByOne() {
-            val currentTask = taskDetailState.itemDetails.toItem()
-            if (currentTask.totalRepeticiones > 0 && currentTask.repeticionesRealizadas < (currentTask.totalRepeticiones * 3)) {
-                tasksRepository.updateTask(
-                    currentTask.copy(
-                        //quantity = currentTask.quantity - 1,
-                        repeticionesRealizadas = currentTask.repeticionesRealizadas + 1
-                    )
+    suspend fun modificarRepeticiones(boolean: Boolean) {
+
+        Log.d("TaskDetailsViewModel", "Entrando en modificarRepeticiones con valor: $boolean")
+
+
+
+        if(boolean){
+
+
+            val currentTask = taskDetailState.taskDetails.toTask()
+
+            var currentRepeticiones = currentTask.totalRepeticiones
+
+            var repeticionesRealizadas = currentTask.repeticionesRealizadas
+
+            var serie1 = currentTask.serie1
+
+            val updatedTask = currentTask.copy(
+                totalRepeticiones = currentRepeticiones +1,
+                completado = false,
+                repeticionesRealizadas = repeticionesRealizadas
+            )
+
+            tasksRepository.updateTask(updatedTask)
+
+            taskDetailState = taskDetailState.copy(taskDetails = updatedTask.totaskDetails())
+
+            Log.d("TaskDetailsViewModel", "suspend fun aumentarRepeticiones -  Repeticiones aumentadas, nueva cantidad: ${updatedTask.totalRepeticiones}")
+
+
+        }else{
+
+
+            val currentTask = taskDetailState.taskDetails.toTask()
+
+            var currentRepeticiones = currentTask.totalRepeticiones
+
+            if(currentRepeticiones > 1){
+
+
+
+                var serie1 = currentTask.serie1
+                if ( serie1 == currentRepeticiones) {
+                    serie1 -= 1
+                }
+                var serie2 = currentTask.serie2
+                if(serie2 == currentRepeticiones){
+                    serie2 -= 1
+                }
+                var serie3 = currentTask.serie3
+                if(serie3 == currentRepeticiones){
+                    serie3 -= 1
+                }
+
+                var updatedTask = currentTask.copy(
+                    totalRepeticiones = currentRepeticiones - 1,
+                    completado = false,
+                    serie1 = serie1,
+                    serie2 = serie2,
+                    serie3 = serie3
                 )
 
-                taskDetailState = taskDetailState.copy(itemDetails = currentTask.copy(
-                    //quantity = currentTask.quantity - 1,
-                    repeticionesRealizadas = currentTask.repeticionesRealizadas + 1
-                ).toItemDetails())
+                var repeticionesRealizadas = updatedTask.serie1 + updatedTask.serie2 + updatedTask.serie3
+
+
+                updatedTask = updatedTask.copy(
+                    repeticionesRealizadas = repeticionesRealizadas
+                )
+
+                tasksRepository.updateTask(updatedTask)
+
+                taskDetailState = taskDetailState.copy(taskDetails = updatedTask.totaskDetails())
+
+                Log.d("TaskDetailsViewModel", "suspend fun aumentarRepeticiones -  Repeticiones aumentadas, nueva cantidad: ${updatedTask.totalRepeticiones}")
 
             }
+
+
+
+        }
+
+
+
+
     }
+
+
+    suspend fun cambiarEstadoCompletado(){
+
+        var completado = taskDetailState.taskDetails.toTask().completado
+
+        completado = !completado
+
+        val currentTask = taskDetailState.taskDetails.toTask()
+        tasksRepository.updateTask(
+            currentTask.copy( completado = completado
+            )
+        )
+
+        taskDetailState = taskDetailState.copy(taskDetails = currentTask.copy(
+            completado = completado
+        ).totaskDetails())
+
+    }
+
     suspend fun updateSliderTask(numSlider: Int, numeroRepeticiones: Int) {
 
-            val currentTask = taskDetailState.itemDetails.toItem()
+        //Log.d("TaskDetailsViewModel","Entrando en suspend fun updateSliderTask con valores-> numSlider: $numSlider, numeroRepeticiones: $numeroRepeticiones")
 
-            val tareaActualizada = when(numSlider) {
+            val currentTask = taskDetailState.taskDetails.toTask()
+
+            var tareaActualizada = when(numSlider) {
                 1 -> currentTask.copy(serie1 = numeroRepeticiones, repeticionesRealizadas = (numeroRepeticiones + currentTask.serie2 + currentTask.serie3))
                 2 -> currentTask.copy(serie2 = numeroRepeticiones, repeticionesRealizadas = (numeroRepeticiones + currentTask.serie1 + currentTask.serie3))
                 3 -> currentTask.copy(serie3 = numeroRepeticiones, repeticionesRealizadas = (numeroRepeticiones + currentTask.serie1 + currentTask.serie2))
                 else -> currentTask
             }
 
-            tasksRepository.updateTask(tareaActualizada)
+        if(tareaActualizada.repeticionesRealizadas == tareaActualizada.totalRepeticiones*3){
+            tareaActualizada = tareaActualizada.copy(completado = true)
+        }else{
+            tareaActualizada = tareaActualizada.copy(completado = false)
+        }
 
-            taskDetailState = taskDetailState.copy(itemDetails = tareaActualizada.toItemDetails())
+            taskDetailState = taskDetailState.copy(taskDetails = tareaActualizada.totaskDetails())
+
+        tasksRepository.updateTask(tareaActualizada)
+
+        //Log.d("TaskDetailsViewModel","tarea completada: ${tareaActualizada.completado}")
 
     }
 
-    fun updateUiState(itemDetails: ItemDetails) {
+    fun updateUiState(taskDetails: TaskDetails) {
         taskDetailState =
-            ItemUiState(itemDetails = itemDetails, isEntryValid = true)
+            taskUiState(taskDetails = taskDetails, isEntryValid = true)
     }
 
-    suspend fun deleteItem() {
+    suspend fun deleteTask() {
 
-            tasksRepository.deletetask(taskDetailState.itemDetails.toItem())
+            tasksRepository.deletetask(taskDetailState.taskDetails.toTask())
     }
 }
-
-data class ItemDetailsUiState(
-    val outOfStock: Boolean = true,
-    val itemDetails: ItemDetails = ItemDetails()
-)

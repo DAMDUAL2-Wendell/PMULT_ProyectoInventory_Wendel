@@ -109,7 +109,7 @@ fun topAppBar(
 
 @Composable
 fun bottomAppBarHome(
-    onClickAddItem : () -> Unit
+    onClickAddTask : () -> Unit
 ) {
     androidx.compose.material3.BottomAppBar(
         modifier = Modifier
@@ -123,7 +123,7 @@ fun bottomAppBarHome(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onClickAddItem,
+                onClick = onClickAddTask,
                 containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
 

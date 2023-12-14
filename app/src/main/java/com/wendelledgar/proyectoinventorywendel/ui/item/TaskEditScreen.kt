@@ -18,19 +18,19 @@ import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
-import com.wendelledgar.proyectoinventorywendel.ui.theme.InventoryTheme
+import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
 import kotlinx.coroutines.launch
 
-object ItemEditDestination : NavigationDestination {
-    override val route = "item_edit"
-    override val titleRes = R.string.edit_item_title
-    const val itemIdArg = "itemId"
-    val routeWithArgs = "$route/{$itemIdArg}"
+object TaskEditDestination : NavigationDestination {
+    override val route = "task_edit"
+    override val titleRes = R.string.edit_task_title
+    const val taskIdArg = "taskId"
+    val routeWithArgs = "$route/{$taskIdArg}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemEditScreen(
+fun TaskEditScreen(
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
@@ -44,7 +44,7 @@ fun ItemEditScreen(
     Scaffold(
         topBar = {
             topAppBar(
-                title = stringResource(ItemEditDestination.titleRes),
+                title = stringResource(TaskEditDestination.titleRes),
                 canNavigateBack = true,
                 navigateUp = onNavigateUp,
                 scrollBehavior = scrollBehavior,
@@ -58,12 +58,12 @@ fun ItemEditScreen(
         },
         modifier = modifier
     ) { innerPadding ->
-        ItemEntryBody(
-            itemUiState = viewModel.itemUiState,
-            onItemValueChange = viewModel::updateUiState,
+        TaskEntryBody(
+            taskUiState = viewModel.taskUiState,
+            onTaskValueChange = viewModel::updateUiState,
             onSaveClick = {
                 coroutineScope.launch {
-                    viewModel.updateItem()
+                    viewModel.updateTask()
                     navigateBack()
                 }
             },
@@ -74,20 +74,20 @@ fun ItemEditScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun ItemEditScreenPreview() {
-    InventoryTheme {
-        ItemEditScreen(navigateBack = { /*Do nothing*/ }, onNavigateUp = { /*Do nothing*/ })
+fun TaskEditScreenPreview() {
+    TaskTheme {
+        TaskEditScreen(navigateBack = { /*Do nothing*/ }, onNavigateUp = { /*Do nothing*/ })
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ItemEditBodyPreview() {
-    InventoryTheme {
-        ItemEntryBody(itemUiState = ItemUiState(
-            ItemDetails(
-                name = "Item name", seriesRealizadas = "10", quantity = 5
+fun TaskEditBodyPreview() {
+    TaskTheme {
+        TaskEntryBody(taskUiState = taskUiState(
+            TaskDetails(
+                name = "task", seriesRealizadas = "1", quantity = 5
             )
-        ), onItemValueChange = {}, onSaveClick = {})
+        ), onTaskValueChange = {}, onSaveClick = {})
     }
 }

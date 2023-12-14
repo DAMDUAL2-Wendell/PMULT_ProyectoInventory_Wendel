@@ -47,27 +47,26 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
-import com.wendelledgar.proyectoinventorywendel.bottomAppBarHome
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
-import com.wendelledgar.proyectoinventorywendel.ui.theme.InventoryTheme
+import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
 import kotlinx.coroutines.launch
 
-object ItemDetailsDestination : NavigationDestination {
-    override val route = "item_details"
-    override val titleRes = R.string.item_detail_title
-    const val itemIdArg = "itemId"
-    val routeWithArgs = "$route/{$itemIdArg}"
+object TaskDetailsDestination : NavigationDestination {
+    override val route = "task_details"
+    override val titleRes = R.string.task_detail_title
+    const val taskIdArg = "taskId"
+    val routeWithArgs = "$route/{$taskIdArg}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemDetailsScreen(
-    navigateToEditItem: (Int) -> Unit,
+fun TaskDetailsScreen(
+    navigateToEditTask: (Int) -> Unit,
     navigateBack: () -> Unit,
-    viewModel: ItemDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: TaskDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier
 ) {
 
@@ -80,7 +79,7 @@ fun ItemDetailsScreen(
     Scaffold(
         topBar = {
             topAppBar(
-                title = stringResource(ItemDetailsDestination.titleRes),
+                title = stringResource(TaskDetailsDestination.titleRes),
                 canNavigateBack = true,
                 navigateUp = navigateBack,
                 scrollBehavior = scrollBehavior,
@@ -94,41 +93,41 @@ fun ItemDetailsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navigateToEditItem(viewModel.taskDetailState.itemDetails.id) },
+                onClick = { navigateToEditTask(viewModel.taskDetailState.taskDetails.id) },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
 
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.edit_item_title),
+                    contentDescription = stringResource(R.string.edit_task_title),
                 )
             }
         }, modifier = modifier
     ) { innerPadding ->
-        ItemDetailsBody(
-            itemDetailsUiState = uiState,
-            onTerminarSerie = {
+        TaskDetailsBody(
+            taskDetailsUiState = uiState,
+            modificarRepeticiones = {
                 coroutineScope.launch {
-                    viewModel.reduceQuantityByOne()
-                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
+                    viewModel.modificarRepeticiones(it)
+                    viewModel.updateUiState(taskDetails = viewModel.taskDetailState.taskDetails)
                 }
             },
             updateUiState = {
                 coroutineScope.launch {
-                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
+                    viewModel.updateUiState(taskDetails = viewModel.taskDetailState.taskDetails)
                 }
             },
             updateSliderTask = { numSlider, valor ->
                 coroutineScope.launch {
                     viewModel.updateSliderTask(numSlider, valor)
-                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
+                    viewModel.updateUiState(taskDetails = viewModel.taskDetailState.taskDetails)
                 }
             },
             onDelete = {
                 coroutineScope.launch {
-                    viewModel.deleteItem()
-                    viewModel.updateUiState(itemDetails =  viewModel.taskDetailState.itemDetails)
+                    viewModel.deleteTask()
+                    viewModel.updateUiState(taskDetails = viewModel.taskDetailState.taskDetails)
                     navigateBack()
                 }
             },
@@ -140,9 +139,9 @@ fun ItemDetailsScreen(
 }
 
 @Composable
-private fun ItemDetailsBody(
-    itemDetailsUiState: ItemUiState,
-    onTerminarSerie: () -> Unit,
+private fun TaskDetailsBody(
+    taskDetailsUiState: taskUiState,
+    modificarRepeticiones: (Boolean) -> Unit,
     updateUiState: () -> Unit,
     updateSliderTask: (Int, Int) -> Unit,
     onDelete: () -> Unit,
@@ -154,19 +153,33 @@ private fun ItemDetailsBody(
     ) {
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
-        ItemDetails(
-            task = itemDetailsUiState.itemDetails.toItem(),
+        taskDetails(
+            task = taskDetailsUiState.taskDetails.toTask(),
             updateSliderTask = updateSliderTask,
             modifier = Modifier.fillMaxWidth()
         )
+
         Button(
-            onClick = onTerminarSerie,
+            onClick = {modificarRepeticiones(true)},
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.small,
             enabled = true
         ) {
-            Text(stringResource(R.string.btn_terminar_serie))
+            Text(stringResource(R.string.aumentar_series))
         }
+
+        Button(
+            onClick = {modificarRepeticiones(false)},
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.small,
+            enabled = true
+        ) {
+            Text(stringResource(R.string.diminuir_series))
+        }
+
+
+
+
         OutlinedButton(
             onClick = { deleteConfirmationRequired = true },
             shape = MaterialTheme.shapes.small,
@@ -196,7 +209,6 @@ fun sliderAndCheckbox(
     modifier: Modifier = Modifier
 ) {
 
-    //var sliderValue by rememberSaveable { mutableStateOf(sliderValue) }
 
     var sliderValue = sliderValue
 
@@ -295,7 +307,7 @@ fun progressBar(
 
 
 @Composable
-fun ItemDetails(
+fun taskDetails(
     task: Task,
     updateSliderTask: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
@@ -318,24 +330,24 @@ fun ItemDetails(
            
             cardTitle(taskName = task.name)
 
-            ItemDetailsRow(
+            TaskDetailsRow(
                 labelResID = R.string.seriesNum,
-                itemDetail = task.totalRepeticiones.toString(),
+                taskDetail = task.totalRepeticiones.toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
             )
 
-            ItemDetailsRow(
+            TaskDetailsRow(
                 labelResID = R.string.num_series,
-                itemDetail = ((task.totalRepeticiones * 3) - task.repeticionesRealizadas).toString(),
+                taskDetail = ((task.totalRepeticiones * 3) - task.repeticionesRealizadas).toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
             )
-            ItemDetailsRow(
+            TaskDetailsRow(
                 labelResID = R.string.repeticionesRealizadas,
-                itemDetail = task.repeticionesRealizadas.toString(),
+                taskDetail = task.repeticionesRealizadas.toString(),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
@@ -391,13 +403,13 @@ fun cardTitle(
 
 
 @Composable
-private fun ItemDetailsRow(
-    @StringRes labelResID: Int, itemDetail: String, modifier: Modifier = Modifier
+private fun TaskDetailsRow(
+    @StringRes labelResID: Int, taskDetail: String, modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier) {
         Text(stringResource(labelResID))
         Spacer(modifier = Modifier.weight(1f))
-        Text(text = itemDetail, fontWeight = FontWeight.Bold)
+        Text(text = taskDetail, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -425,13 +437,13 @@ private fun DeleteConfirmationDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun ItemDetailsScreenPreview() {
-    InventoryTheme {
-        ItemDetailsBody(
-            ItemUiState(
-                itemDetails = ItemDetails(1, "Pen", "100", "10")
+fun TaskDetailsScreenPreview() {
+    TaskTheme {
+        TaskDetailsBody(
+            taskUiState(
+                taskDetails = TaskDetails(1, "task", "1", "1")
             ),
-            onTerminarSerie = {},
+            modificarRepeticiones = {},
             updateUiState = {},
             updateSliderTask = {uno,dos -> {}},
             onDelete = {}

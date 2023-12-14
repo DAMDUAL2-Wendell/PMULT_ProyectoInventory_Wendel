@@ -10,37 +10,35 @@ import com.wendelledgar.proyectoinventorywendel.data.Task
 /**
  * ViewModel para validar e insertar tasks en la base de datos de room.
  */
-class ItemEntryViewModel(private val tasksRepository: TasksRepository) : ViewModel() {
+class TaskEntryViewModel(private val tasksRepository: TasksRepository) : ViewModel() {
 
-    var itemUiState by mutableStateOf(ItemUiState())
+    var taskUiState by mutableStateOf(taskUiState())
         private set
 
-    fun updateUiState(itemDetails: ItemDetails) {
-        itemUiState =
-            ItemUiState(itemDetails = itemDetails, isEntryValid = validateInput(itemDetails))
+    fun updateUiState(taskDetails: TaskDetails) {
+        taskUiState =
+            taskUiState(taskDetails = taskDetails, isEntryValid = validateInput(taskDetails))
     }
 
-    private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
+    private fun validateInput(uiState: TaskDetails = taskUiState.taskDetails): Boolean {
         return with(uiState) {
             name.isNotBlank()
-            //&&seriesRealizadas.isNotBlank()
-            //&& quantity.isNotBlank()
         }
     }
 
-    suspend fun saveItem() {
+    suspend fun saveTask() {
         if (validateInput()) {
-            tasksRepository.insertTask(itemUiState.itemDetails.toItem())
+            tasksRepository.insertTask(taskUiState.taskDetails.toTask())
         }
     }
 }
 
-data class ItemUiState(
-    val itemDetails: ItemDetails = ItemDetails(),
+data class taskUiState(
+    val taskDetails: TaskDetails = TaskDetails(),
     val isEntryValid: Boolean = false
 )
 
-data class ItemDetails(
+data class TaskDetails(
     val id: Int = 0,
     val name: String = "",
     val description: String = "",
@@ -52,7 +50,7 @@ data class ItemDetails(
     val completed: Boolean? = false
 )
 
-fun ItemDetails.toItem(): Task = Task(
+fun TaskDetails.toTask(): Task = Task(
     id = id,
     name = name,
     description = description,
@@ -64,12 +62,12 @@ fun ItemDetails.toItem(): Task = Task(
     completado = completed ?: false
 )
 
-fun Task.toItemUiState(isEntryValid: Boolean = false): ItemUiState = ItemUiState(
-    itemDetails = this.toItemDetails(),
+fun Task.totaskUiState(isEntryValid: Boolean = false): taskUiState = taskUiState(
+    taskDetails = this.totaskDetails(),
     isEntryValid = isEntryValid
 )
 
-fun Task.toItemDetails(): ItemDetails = ItemDetails(
+fun Task.totaskDetails(): TaskDetails = TaskDetails(
     id = id,
     name = name,
     description = description,

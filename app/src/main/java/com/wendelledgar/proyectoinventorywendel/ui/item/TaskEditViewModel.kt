@@ -19,42 +19,34 @@ class TaskEditViewModel(
     private val tasksRepository: TasksRepository
 ) : ViewModel() {
 
-    var itemUiState by mutableStateOf(ItemUiState())
+    var taskUiState by mutableStateOf(taskUiState())
         private set
 
-    private val itemId: Int = checkNotNull(savedStateHandle[ItemEditDestination.itemIdArg])
+    private val taskId: Int = checkNotNull(savedStateHandle[TaskEditDestination.taskIdArg])
 
     init {
         viewModelScope.launch {
-            itemUiState = tasksRepository.getTaskStream(itemId)
+            taskUiState = tasksRepository.getTaskStream(taskId)
                 .filterNotNull()
                 .first()
-                .toItemUiState(true)
+                .totaskUiState(true)
         }
     }
 
-    fun updateSliderTask(numSlider:Int, valor: Int){
-        itemUiState = itemUiState.copy(itemDetails = itemUiState.itemDetails.copy(
-            serie2 = valor
-        ))
+    fun updateUiState(taskDetails: TaskDetails) {
+        taskUiState = taskUiState(taskDetails = taskDetails, isEntryValid = validateInput(taskDetails))
+
     }
 
-
-    fun updateUiState(itemDetails: ItemDetails) {
-        itemUiState =
-            ItemUiState(itemDetails = itemDetails, isEntryValid = validateInput(itemDetails))
-    }
-
-    suspend fun updateItem() {
+    suspend fun updateTask() {
         if (validateInput()) {
-            tasksRepository.updateTask(itemUiState.itemDetails.toItem())
+            tasksRepository.updateTask(taskUiState.taskDetails.toTask())
         }
     }
 
-    private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
+    private fun validateInput(uiState: TaskDetails = taskUiState.taskDetails): Boolean {
         return with(uiState) {
             name.isNotBlank()
-                    //&& seriesRealizadas.isNotBlank() && quantity.isNotBlank()
         }
     }
 }

@@ -9,12 +9,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.wendelledgar.proyectoinventorywendel.ui.home.HomeDestination
 import com.wendelledgar.proyectoinventorywendel.ui.home.HomeScreen
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemDetailsDestination
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemDetailsScreen
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemEditDestination
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemEditScreen
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemEntryDestination
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemEntryScreen
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskDetailsDestination
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskDetailsScreen
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEditDestination
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEditScreen
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEntryDestination
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEntryScreen
 @Composable
 fun TaskNavHost(
     navController: NavHostController,
@@ -27,34 +27,34 @@ fun TaskNavHost(
     ) {
         composable(route = HomeDestination.route) {
             HomeScreen(
-                navigateToItemEntry = { navController.navigate(ItemEntryDestination.route) },
-                navigateToItemUpdate = {navController.navigate("${ItemDetailsDestination.route}/${it}")}
+                navigateToTaskEntry = { navController.navigate(TaskEntryDestination.route) },
+                navigateToTaskUpdate = {navController.navigate("${TaskDetailsDestination.route}/${it}")}
             )
         }
-        composable(route = ItemEntryDestination.route) {
-            ItemEntryScreen(
+        composable(route = TaskEntryDestination.route) {
+            TaskEntryScreen(
                 navigateBack = { navController.popBackStack() },
                 onNavigateUp = { navController.navigateUp() }
             )
         }
         composable(
-            route = ItemDetailsDestination.routeWithArgs,
-            arguments = listOf(navArgument(ItemDetailsDestination.itemIdArg) {
+            route = TaskDetailsDestination.routeWithArgs,
+            arguments = listOf(navArgument(TaskDetailsDestination.taskIdArg) {
                 type = NavType.IntType
             })
         ) {
-            ItemDetailsScreen(
-                navigateToEditItem = { navController.navigate("${ItemEditDestination.route}/$it") },
+            TaskDetailsScreen(
+                navigateToEditTask = { navController.navigate("${TaskEditDestination.route}/$it") },
                 navigateBack = { navController.navigateUp() }
             )
         }
         composable(
-            route = ItemEditDestination.routeWithArgs,
-            arguments = listOf(navArgument(ItemEditDestination.itemIdArg) {
+            route = TaskEditDestination.routeWithArgs,
+            arguments = listOf(navArgument(TaskEditDestination.taskIdArg) {
                 type = NavType.IntType
             })
         ) {
-            ItemEditScreen(
+            TaskEditScreen(
                 navigateBack = { navController.popBackStack() },
                 onNavigateUp = { navController.navigateUp() }
             )

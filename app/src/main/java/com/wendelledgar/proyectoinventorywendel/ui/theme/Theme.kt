@@ -58,7 +58,7 @@ private val CustomDarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun InventoryTheme(
+fun TaskTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit

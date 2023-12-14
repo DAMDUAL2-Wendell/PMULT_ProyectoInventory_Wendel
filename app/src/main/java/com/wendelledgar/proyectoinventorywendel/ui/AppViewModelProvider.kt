@@ -7,9 +7,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wendelledgar.proyectoinventorywendel.RutinasApplication
 import com.wendelledgar.proyectoinventorywendel.ui.home.HomeViewModel
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemDetailsViewModel
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskDetailsViewModel
 import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEditViewModel
-import com.wendelledgar.proyectoinventorywendel.ui.item.ItemEntryViewModel
+import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEntryViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -22,12 +22,12 @@ object AppViewModelProvider {
         }
         // Initializer Ventana nueva Tarea
         initializer {
-            ItemEntryViewModel(inventoryApplication().container.tasksRepository)
+            TaskEntryViewModel(inventoryApplication().container.tasksRepository)
         }
 
         // Initializer Ventana Detalles Tarea
         initializer {
-            ItemDetailsViewModel(
+            TaskDetailsViewModel(
                 this.createSavedStateHandle(),
                 inventoryApplication().container.tasksRepository
             )

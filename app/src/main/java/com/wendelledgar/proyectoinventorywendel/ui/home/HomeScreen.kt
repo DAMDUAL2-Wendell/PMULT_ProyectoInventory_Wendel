@@ -52,6 +52,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
@@ -60,6 +61,7 @@ import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
+import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
@@ -70,8 +72,8 @@ object HomeDestination : NavigationDestination {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
-    navigateToItemEntry: () -> Unit,
-    navigateToItemUpdate: (Int) -> Unit,
+    navigateToTaskEntry: () -> Unit,
+    navigateToTaskUpdate: (Int) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier
 ) {
@@ -87,7 +89,7 @@ fun HomeScreen(
         contentColor = MaterialTheme.colorScheme.secondary,
         bottomBar = {
                     bottomAppBarHome(
-                        onClickAddItem = navigateToItemEntry,
+                        onClickAddTask = navigateToTaskEntry,
                     )
         },
         topBar = {
@@ -102,7 +104,7 @@ fun HomeScreen(
         HomeBody(
             taskList = homeUiState.taskList,
             updateTaskCompletion = viewModel::updateTaskComplete,
-            onItemClick = navigateToItemUpdate,
+            onTaskClick = navigateToTaskUpdate,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -114,7 +116,7 @@ fun HomeScreen(
 private fun HomeBody(
     taskList: List<Task>,
     updateTaskCompletion: (Int, Boolean) -> Unit,
-    onItemClick: (Int) -> Unit,
+    onTaskClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -124,7 +126,7 @@ private fun HomeBody(
         if (taskList.isEmpty()) {
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = stringResource(R.string.no_item_description),
+                text = stringResource(R.string.no_task_description),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge
             )
@@ -133,7 +135,7 @@ private fun HomeBody(
             InventoryList(
                 taskList = taskList,
                 updateTaskCompletion = updateTaskCompletion,
-                onItemClick = { onItemClick(it.id) },
+                onTaskClick = { onTaskClick(it.id) },
                 modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.padding_small))
             )
         }
@@ -144,22 +146,22 @@ private fun HomeBody(
 private fun InventoryList(
     taskList: List<Task>,
     updateTaskCompletion: (Int, Boolean) -> Unit,
-    onItemClick: (Task) -> Unit,
+    onTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
         items(items = taskList, key = { it.id }) { item ->
-            InventoryItem(task = item,
+            taskItem(task = item,
                 updateTaskCompletion = updateTaskCompletion,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_mini))
-                    .clickable { onItemClick(item) })
+                    .clickable { onTaskClick(item) })
         }
     }
 }
 
 @Composable
-private fun InventoryItem(
+private fun taskItem(
     task: Task,
     updateTaskCompletion: (Int, Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -250,7 +252,7 @@ private fun InventoryItem(
             if (expanded) {
                 infoCardTask(
                     key = R.string.repeticionesRealizadas,
-                    value = ((task.repeticionesRealizadas / (task.totalRepeticiones*3) ) * 100).toString()
+                    value = (task.repeticionesRealizadas.toString() + " de " + (task.totalRepeticiones * 3))
                 )
 
                 infoCardTask(
@@ -274,9 +276,21 @@ fun completadoCheckbox(
     Column (
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
     ) {
-        Text(
-            text = stringResource(R.string.completado)
-        )
+
+        Row {
+            Column {
+                Text(text = (((task.repeticionesRealizadas.toFloat() / (task.totalRepeticiones * 3).toFloat()) * 100).toInt()).toString() + "%",
+                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_small)))
+
+            }
+            Column {
+                Text(
+                    text = stringResource(R.string.completado)
+                )
+            }
+        }
+
+
     }
 
     Column(
@@ -285,6 +299,8 @@ fun completadoCheckbox(
     ) {
 
         Spacer(Modifier.weight(1f))
+        
+
         switchCompleted(
             task = task,
             updateTaskCompletion = updateTaskCompletion
@@ -389,23 +405,18 @@ fun expandButton(
     }
 }
 
-
-
-
-
-
 @Composable
 fun switchCompleted(
     task: Task,
     updateTaskCompletion: (Int, Boolean) -> Unit,
 ) {
     var checked = task.completado
-
+    
     Switch(
         checked = checked,
-        onCheckedChange = { isChecked ->
-            checked = isChecked
-            updateTaskCompletion(task.id,isChecked)
+        onCheckedChange = { checkChange ->
+            checked = checkChange
+            updateTaskCompletion(task.id,checkChange)
         },
         modifier = Modifier.padding(0.dp)
     )
@@ -414,32 +425,36 @@ fun switchCompleted(
 
 
 
-/*
+
 @Preview(showBackground = true)
 @Composable
 fun HomeBodyPreview() {
-    InventoryTheme {
+    TaskTheme {
         HomeBody(listOf(
-            Task(1, "Game", 1, 20), Task(2, "Pen", 2, 30), Task(3, "TV", 3, 50)
-        ), onItemClick = {}, updateTaskCompletion = {})
+            Task(1, "task", "", 20),
+            Task(2, "task2", "", 30)
+        ),
+            onTaskClick = {},
+            updateTaskCompletion = {uno,dos -> {}}
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomeBodyEmptyListPreview() {
-    InventoryTheme {
-        HomeBody(listOf(), onItemClick = {})
+    TaskTheme {
+        HomeBody(listOf(), onTaskClick = {}, updateTaskCompletion = {uno,dos -> {}})
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun InventoryItemPreview() {
-    InventoryTheme {
-        InventoryItem(
-            Task(1, "Game", 1, 20),
+fun TaskItemPreview() {
+    TaskTheme {
+        taskItem(
+            Task(1, "task", "", 20),
+            updateTaskCompletion = {uno,dos -> {}},
         )
     }
 }
-*/
