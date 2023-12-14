@@ -1,11 +1,14 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
 import com.wendelledgar.proyectoinventorywendel.data.Task
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
 /**
  * ViewModel para validar e insertar tasks en la base de datos de room.
@@ -16,8 +19,7 @@ class TaskEntryViewModel(private val tasksRepository: TasksRepository) : ViewMod
         private set
 
     fun updateUiState(taskDetails: TaskDetails) {
-        taskUiState =
-            taskUiState(taskDetails = taskDetails, isEntryValid = validateInput(taskDetails))
+        taskUiState = taskUiState(taskDetails = taskDetails, isEntryValid = validateInput(taskDetails))
     }
 
     private fun validateInput(uiState: TaskDetails = taskUiState.taskDetails): Boolean {
@@ -27,10 +29,13 @@ class TaskEntryViewModel(private val tasksRepository: TasksRepository) : ViewMod
     }
 
     suspend fun saveTask() {
-        if (validateInput()) {
-            tasksRepository.insertTask(taskUiState.taskDetails.toTask())
-        }
+        tasksRepository.insertTask(taskUiState.taskDetails.toTask())
     }
+
+    fun existsTaskByName(name: String):Boolean{
+        return tasksRepository.getTaskStreamByName(name) == null
+    }
+
 }
 
 data class taskUiState(

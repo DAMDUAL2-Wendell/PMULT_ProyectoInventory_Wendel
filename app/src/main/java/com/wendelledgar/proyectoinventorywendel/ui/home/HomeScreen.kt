@@ -439,22 +439,3 @@ fun HomeBodyPreview() {
         )
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun HomeBodyEmptyListPreview() {
-    TaskTheme {
-        HomeBody(listOf(), onTaskClick = {}, updateTaskCompletion = {uno,dos -> {}})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TaskItemPreview() {
-    TaskTheme {
-        taskItem(
-            Task(1, "task", "", 20),
-            updateTaskCompletion = {uno,dos -> {}},
-        )
-    }
-}

@@ -33,6 +33,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -93,21 +94,6 @@ fun TaskDetailsScreen(
                 navigateToEdit = { navigateToEditTask(viewModel.taskDetailState.taskDetails.id) }
             )
         },
-        /*
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigateToEditTask(viewModel.taskDetailState.taskDetails.id) },
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
-
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.edit_task_title),
-                )
-            }
-        },
-        */
         modifier = modifier
     ) { innerPadding ->
         TaskDetailsBody(
@@ -194,6 +180,8 @@ private fun TaskDetailsBody(
         }
         if (deleteConfirmationRequired) {
             DeleteConfirmationDialog(
+                title = R.string.attention,
+                text = R.string.delete_question,
                 onDeleteConfirm = {
                     deleteConfirmationRequired = false
                     onDelete()
@@ -420,13 +408,15 @@ private fun TaskDetailsRow(
 
 @Composable
 private fun DeleteConfirmationDialog(
+    @StringRes title: Int,
+    @StringRes text: Int,
     onDeleteConfirm: () -> Unit,
     onDeleteCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AlertDialog(onDismissRequest = { /* Do nothing */ },
-        title = { Text(stringResource(R.string.attention)) },
-        text = { Text(stringResource(R.string.delete_question)) },
+        title = { Text(stringResource(title)) },
+        text = { Text(stringResource(text)) },
         modifier = modifier,
         dismissButton = {
             TextButton(onClick = onDeleteCancel) {

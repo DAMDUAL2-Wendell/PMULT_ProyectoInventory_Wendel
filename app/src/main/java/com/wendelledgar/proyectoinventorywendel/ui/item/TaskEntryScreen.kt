@@ -1,5 +1,6 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -75,8 +76,19 @@ fun TaskEntryScreen(
             onTaskValueChange = viewModel::updateUiState,
             onSaveClick = {
                 coroutineScope.launch {
-                    viewModel.saveTask()
-                    navigateBack()
+
+
+                    if(!viewModel.existsTaskByName(viewModel.taskUiState.taskDetails.name)){
+                        viewModel.saveTask()
+                        viewModel.updateUiState(viewModel.taskUiState.taskDetails.copy())
+                        navigateBack()
+
+                    }else{
+                        Log.d("TaskEntryScreen","la tarea ya existe en la base de datos -> task: ${viewModel.taskUiState.taskDetails.name}")
+
+                    }
+
+
                 }
             },
             modifier = Modifier

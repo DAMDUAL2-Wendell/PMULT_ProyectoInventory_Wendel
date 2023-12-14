@@ -15,4 +15,6 @@ class OfflineTasksRepository(private val taskDao: TaskDao) : TasksRepository {
 
     override suspend fun updateTask(task: Task) = taskDao.update(task)
 
+    override fun getTaskStreamByName(name: String): Flow<Task?> = taskDao.getTaskByName(name)
+
 }
