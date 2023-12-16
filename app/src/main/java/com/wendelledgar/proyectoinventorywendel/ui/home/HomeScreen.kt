@@ -200,6 +200,11 @@ private fun taskItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
+                /**
+                 *
+                 * Falta implementar lógica para eliminar una Task.
+                 *
+                 */
                 if(task.completado){
                     Button(onClick = { /*TODO*/ }) {
                         Text(
@@ -252,7 +257,7 @@ private fun taskItem(
                     value = (task.repeticionesRealizadas.toString() + " de " + (task.totalRepeticiones * 3))
                 )
 
-                infoCardTask(
+                infoDescripcion(
                     key = R.string.description,
                     value = task.description
                 )
@@ -324,6 +329,40 @@ fun cardTaskName(
     }
 }
 
+@Composable
+fun infoDescripcion(
+    @StringRes key: Int,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = dimensionResource(id = R.dimen.padding_small), start = dimensionResource(id = R.dimen.padding_small))
+    ) {
+
+            Text(
+                text = stringResource(id = key),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small), end = dimensionResource(id = R.dimen.padding_extra_small))
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
 
 
 @Composable
@@ -358,8 +397,6 @@ fun infoCardTask(
 
     }
 }
-
-
 
 @Composable
 fun iconoTask(

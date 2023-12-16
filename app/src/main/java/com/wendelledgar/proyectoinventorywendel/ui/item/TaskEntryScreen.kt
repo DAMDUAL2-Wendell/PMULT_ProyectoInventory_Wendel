@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,11 +23,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
@@ -75,22 +80,28 @@ fun TaskEntryScreen(
         TaskEntryBody(
             taskUiState = viewModel.taskUiState,
             onTaskValueChange = viewModel::updateUiState,
-            changeIconTask = {viewModel.changeIconTask()},
+            changeIconTask = { viewModel.changeIconTask() },
             onSaveClick = {
                 coroutineScope.launch {
 
 
-                    if(!viewModel.existsTaskByName(viewModel.taskUiState.taskDetails.name)){
+                    if (!viewModel.existsTaskByName(viewModel.taskUiState.taskDetails.name)) {
                         viewModel.saveTask()
                         viewModel.updateUiState(viewModel.taskUiState.taskDetails.copy())
                         navigateBack()
 
-                    }else{
-                        Log.d("TaskEntryScreen","la tarea ya existe en la base de datos -> task: ${viewModel.taskUiState.taskDetails.name}")
+                    } else {
+                        Log.d(
+                            "TaskEntryScreen",
+                            "la tarea ya existe en la base de datos -> task: ${viewModel.taskUiState.taskDetails.name}"
+                        )
 
-                        /* Implementar mensaje en View
-
-
+                        /**
+                         *
+                         * Implementar mensaje en View para cuando ya hay una tarea con el mismo nombre.
+                         *
+                         *
+                         *
                          */
 
                     }
@@ -173,23 +184,36 @@ fun TaskInputForm(
             keyboardType = KeyboardType.Decimal,
         )
 
-        Button(onClick = changeIconTask) {
-            iconoTask(
-                taskDetails.icono?:2130968577
-            )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Button(
+                onClick = changeIconTask,
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+
+                /**
+                 *
+                 * Falta implementar logica para seleccionar un icono de una lista y asignarlo a la task.
+                 *
+                 */
+                iconoTask(
+                    taskDetails.icono ?: 2130968577
+                )
+            }
         }
-
-
 
         if (!titulo) {
             Text(
-                text = stringResource(R.string.required_fields),
+                text = stringResource(R.string.campos_requeridos),
                 modifier = Modifier.padding(start = dimensionResource(id = R.dimen.padding_medium))
             )
         }
     }
 }
-
 
 
 @Composable
@@ -203,7 +227,7 @@ fun outliedTextField(
     OutlinedTextField(
         value = value?.toString() ?: "",
         onValueChange = { onValueChange(it) },
-        label = { Text(stringResource(label))},
+        label = { Text(stringResource(label)) },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -225,7 +249,7 @@ private fun TaskEntryScreenPreview() {
                 name = "task", seriesRealizadas = "1", quantity = 5
             )
         ), onTaskValueChange = {},
-        changeIconTask = {},
+            changeIconTask = {},
             onSaveClick = {})
     }
 }

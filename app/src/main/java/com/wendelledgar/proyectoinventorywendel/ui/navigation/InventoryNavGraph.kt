@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.wendelledgar.proyectoinventorywendel.ui.home.HomeDestination
 import com.wendelledgar.proyectoinventorywendel.ui.home.HomeScreen
+import com.wendelledgar.proyectoinventorywendel.ui.item.SplashScreenDestination
+import com.wendelledgar.proyectoinventorywendel.ui.item.SplashScreenView
 import com.wendelledgar.proyectoinventorywendel.ui.item.TaskDetailsDestination
 import com.wendelledgar.proyectoinventorywendel.ui.item.TaskDetailsScreen
 import com.wendelledgar.proyectoinventorywendel.ui.item.TaskEditDestination
@@ -24,7 +26,7 @@ fun TaskNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = HomeDestination.route,
+        startDestination = SplashScreenDestination.route,
         modifier = modifier
     ) {
         composable(route = HomeDestination.route) {
@@ -62,6 +64,13 @@ fun TaskNavHost(
                 navigateBack = { navController.popBackStack() },
                 onNavigateUp = { navController.navigateUp() },
                 navigateHome = { navController.navigate(HomeDestination.route) }
+            )
+        }
+        composable(
+            route = SplashScreenDestination.route
+        ){
+            SplashScreenView(
+                navigateToHome = { navController.navigate(HomeDestination.route) }
             )
         }
     }
