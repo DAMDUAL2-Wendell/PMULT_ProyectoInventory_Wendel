@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import kotlinx.coroutines.runBlocking
 
-@Database(entities = [Task::class], version = 18, exportSchema = false)
+@Database(entities = [Task::class], version = 19, exportSchema = false)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 

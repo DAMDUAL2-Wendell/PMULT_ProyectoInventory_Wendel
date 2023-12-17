@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
 import com.wendelledgar.proyectoinventorywendel.data.Task
+import com.wendelledgar.proyectoinventorywendel.ui.item.toTask
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -59,6 +60,11 @@ class HomeViewModel(private val tasksRepository: TasksRepository) : ViewModel() 
 
             }
     }
+
+    suspend fun deleteTask(id: Int) {
+     tasksRepository.deletetask(tasksRepository.getTaskStream(id).filterNotNull().first());
+    }
+    
 
     val homeUiState: StateFlow<HomeUiState> =
         tasksRepository.getAllTasksStream()

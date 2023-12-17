@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -406,7 +407,7 @@ private fun TaskDetailsRow(
 }
 
 @Composable
-private fun DeleteConfirmationDialog(
+public fun DeleteConfirmationDialog(
     @StringRes title: Int,
     @StringRes text: Int,
     onDeleteConfirm: () -> Unit,

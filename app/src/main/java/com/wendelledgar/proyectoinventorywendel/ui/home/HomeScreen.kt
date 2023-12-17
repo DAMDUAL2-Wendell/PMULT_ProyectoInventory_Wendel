@@ -38,9 +38,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,7 +64,9 @@ import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
+import com.wendelledgar.proyectoinventorywendel.ui.item.DeleteConfirmationDialog
 import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
+import kotlinx.coroutines.launch
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
@@ -81,6 +86,8 @@ fun HomeScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     val homeUiState by viewModel.homeUiState.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         modifier = modifier
@@ -105,6 +112,7 @@ fun HomeScreen(
             taskList = homeUiState.taskList,
             updateTaskCompletion = viewModel::updateTaskComplete,
             onTaskClick = navigateToTaskUpdate,
+            deleteTask = { id -> coroutineScope.launch { viewModel.deleteTask(id) } },
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -117,6 +125,7 @@ private fun HomeBody(
     taskList: List<Task>,
     updateTaskCompletion: (Int, Boolean) -> Unit,
     onTaskClick: (Int) -> Unit,
+    deleteTask: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -135,6 +144,7 @@ private fun HomeBody(
             InventoryList(
                 taskList = taskList,
                 updateTaskCompletion = updateTaskCompletion,
+                deleteTask = deleteTask,
                 onTaskClick = { onTaskClick(it.id) },
                 modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.padding_small))
             )
@@ -146,12 +156,15 @@ private fun HomeBody(
 private fun InventoryList(
     taskList: List<Task>,
     updateTaskCompletion: (Int, Boolean) -> Unit,
+    deleteTask: (Int) -> Unit,
     onTaskClick: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     LazyColumn(modifier = modifier) {
         items(items = taskList, key = { it.id }) { item ->
             taskItem(task = item,
+                deleteTask = deleteTask,
                 updateTaskCompletion = updateTaskCompletion,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_mini))
@@ -164,10 +177,13 @@ private fun InventoryList(
 private fun taskItem(
     task: Task,
     updateTaskCompletion: (Int, Boolean) -> Unit,
+    deleteTask: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
     val cardBackgroundColor by animateColorAsState(
         targetValue = if (expanded) MaterialTheme.colorScheme.tertiaryContainer else
@@ -196,6 +212,7 @@ private fun taskItem(
                 .padding(dimensionResource(id = R.dimen.padding_small)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
         ) {
+
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -205,12 +222,25 @@ private fun taskItem(
                  * Falta implementar lógica para eliminar una Task.
                  *
                  */
+
                 if(task.completado){
-                    Button(onClick = { /*TODO*/ }) {
+                    Button(onClick = { deleteConfirmationRequired = true}) {
                         Text(
                             text = "X"
                         )
                     }
+                }
+                if (deleteConfirmationRequired) {
+                    DeleteConfirmationDialog(
+                        title = R.string.attention,
+                        text = R.string.delete_question,
+                        onDeleteConfirm = {
+                            deleteConfirmationRequired = false
+                            deleteTask(task.id)
+                        },
+                        onDeleteCancel = { deleteConfirmationRequired = false },
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
+                    )
                 }
 
                 cardTaskName(
@@ -222,8 +252,6 @@ private fun taskItem(
                 //Spacer(modifier = Modifier.weight(1f))
                 iconoTask(imaxeId = task.icono)
             }
-
-
 
             Row(
                 modifier = Modifier.fillMaxWidth()
@@ -248,7 +276,7 @@ private fun taskItem(
                 
                 Spacer(modifier = Modifier.weight(1f))
 
-                        completadoCheckbox(task = task, updateTaskCompletion = updateTaskCompletion)
+                completadoCheckbox(task = task, updateTaskCompletion = updateTaskCompletion)
 
             }
             if (expanded) {
@@ -263,6 +291,7 @@ private fun taskItem(
                 )
 
             }
+
 
         }
     }
@@ -310,7 +339,6 @@ fun completadoCheckbox(
     }
 }
 
-
 @Composable
 fun cardTaskName(
     taskName: String,
@@ -339,7 +367,10 @@ fun infoDescripcion(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = dimensionResource(id = R.dimen.padding_small), start = dimensionResource(id = R.dimen.padding_small))
+            .padding(
+                top = dimensionResource(id = R.dimen.padding_small),
+                start = dimensionResource(id = R.dimen.padding_small)
+            )
     ) {
 
             Text(
@@ -353,7 +384,10 @@ fun infoDescripcion(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.padding_small), end = dimensionResource(id = R.dimen.padding_extra_small))
+            .padding(
+                dimensionResource(id = R.dimen.padding_small),
+                end = dimensionResource(id = R.dimen.padding_extra_small)
+            )
     ) {
         Text(
             text = value,
@@ -456,10 +490,6 @@ fun switchCompleted(
     )
 }
 
-
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun HomeBodyPreview() {
@@ -469,6 +499,7 @@ fun HomeBodyPreview() {
             Task(2, "task2", "", 30)
         ),
             onTaskClick = {},
+            deleteTask = {},
             updateTaskCompletion = {uno,dos -> {}}
         )
     }
