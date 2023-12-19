@@ -1,5 +1,6 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
+import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.home.HomeDestination
@@ -76,24 +78,51 @@ fun TaskEditScreen(
     }
 }
 
+/*
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun TaskEditScreenPreview() {
     TaskTheme {
-        TaskEditScreen(navigateBack = { /*Do nothing*/ }, onNavigateUp = { /*Do nothing*/ }, navigateHome = {})
+        Scaffold(
+            topBar = {
+                topAppBar(
+                    title = stringResource(TaskEditDestination.titleRes),
+                    canNavigateBack = true,
+                    scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                    modifier = Modifier.height(dimensionResource(id = R.dimen.bottom_bar))
+                )
+            },
+            bottomBar = {
+                bottomAppBarEntry(
+                    navigateToHome = {},
+                    navigateToEdit = {}
+                )
+            },
+            modifier = Modifier
+        ) {
+            TaskEntryBody(
+                taskUiState = taskUiState(TaskDetails()),
+                onTaskValueChange = {},
+                changeIconTask = {},
+                onSaveClick = {},
+                modifier = Modifier.padding(it)
+            )
+        }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TaskEditBodyPreview() {
-    TaskTheme {
-        TaskEntryBody(taskUiState = taskUiState(
-            TaskDetails(
-                name = "task", seriesRealizadas = "1", quantity = 5
-            )
-        ), onTaskValueChange = {},
-            changeIconTask = {},
-            onSaveClick = {})
-    }
+data class taskDetails(
+    val name: String = "",
+    val description: String = "",
+    val quantity: Int? = null,
+    val icono: Int? = null
+)
+
+data class TaskUiState(val taskDetails: TaskDetails) {
 }
+
+
+
+ */

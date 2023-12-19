@@ -1,10 +1,12 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,7 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,11 +38,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
+import com.wendelledgar.proyectoinventorywendel.data.Task
+import com.wendelledgar.proyectoinventorywendel.data.TasksRepository
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.home.iconoTask
 import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 object TaskEntryDestination : NavigationDestination {
@@ -129,20 +136,52 @@ fun TaskEntryBody(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
+        // Inputs para modificar una task
         TaskInputForm(
             taskDetails = taskUiState.taskDetails,
             onValueChange = onTaskValueChange,
-            changeIconTask = changeIconTask,
             modifier = Modifier.fillMaxWidth(),
         )
-        Button(
-            onClick = onSaveClick,
-            enabled = taskUiState.isEntryValid,
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
         ) {
-            Text(text = stringResource(R.string.save_action))
+            Button(
+                onClick = changeIconTask,
+                colors = ButtonDefaults.buttonColors(Color.Transparent),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+
+                /**
+                 *
+                 * Falta implementar logica para seleccionar un icono de una lista y asignarlo a la task.
+                 *
+                 */
+                iconoTask(taskUiState.taskDetails.icono ?: 2130968577)
+            }
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+        // Boton guardar
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = onSaveClick,
+                enabled = taskUiState.isEntryValid,
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+            ) {
+                Text(text = stringResource(R.string.save_action))
+            }
+        }
+
     }
 }
 
@@ -151,7 +190,6 @@ fun TaskEntryBody(
 fun TaskInputForm(
     taskDetails: TaskDetails,
     modifier: Modifier = Modifier,
-    changeIconTask: () -> Unit,
     onValueChange: (TaskDetails) -> Unit = {},
     enabled: Boolean = true
 ) {
@@ -161,7 +199,6 @@ fun TaskInputForm(
     ) {
 
         var titulo = taskDetails.name.isNotBlank()
-
 
         outliedTextField(
             value = taskDetails.name,
@@ -183,28 +220,6 @@ fun TaskInputForm(
             onValueChange = { onValueChange(taskDetails.copy(quantity = it?.toIntOrNull())) },
             keyboardType = KeyboardType.Decimal,
         )
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start
-        ) {
-            Button(
-                onClick = changeIconTask,
-                colors = ButtonDefaults.buttonColors(Color.Transparent),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-
-                /**
-                 *
-                 * Falta implementar logica para seleccionar un icono de una lista y asignarlo a la task.
-                 *
-                 */
-                iconoTask(
-                    taskDetails.icono ?: 2130968577
-                )
-            }
-        }
 
         if (!titulo) {
             Text(
@@ -240,16 +255,55 @@ fun outliedTextField(
     )
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-private fun TaskEntryScreenPreview() {
+fun TaskEntryScreenPreview() {
+    val tasksRepository: TasksRepository = FakeTasksRepository()
+
+    val viewModel = TaskEntryViewModel(tasksRepository)
+
+    val taskUiState by rememberUpdatedState(viewModel.taskUiState)
+
     TaskTheme {
-        TaskEntryBody(taskUiState = taskUiState(
-            TaskDetails(
-                name = "task", seriesRealizadas = "1", quantity = 5
+        Scaffold(
+            topBar = {
+                topAppBar(
+                    title = stringResource(TaskEntryDestination.titleRes),
+                    canNavigateBack = false,
+                    scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                    modifier = Modifier.height(dimensionResource(id = R.dimen.bottom_bar))
+                )
+            },
+            bottomBar = {
+                bottomAppBarEntry(
+                    navigateToHome = {},
+                    navigateToEdit = {}
+                )
+            },
+        ) {
+            TaskEntryBody(
+                taskUiState = taskUiState,
+                onTaskValueChange = {},
+                changeIconTask = {},
+                onSaveClick = {},
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
             )
-        ), onTaskValueChange = {},
-            changeIconTask = {},
-            onSaveClick = {})
+        }
     }
 }
+
+class FakeTasksRepository : TasksRepository {
+    private val tasks = mutableListOf<Task>()
+    override fun getAllTasksStream(): Flow<List<Task>> {TODO()}
+    override fun getTaskStream(id: Int): Flow<Task?> {TODO()}
+    override fun getTaskStreamByName(name: String): Flow<Task?> {TODO()}
+    override suspend fun insertTask(task: Task) {TODO()}
+    override suspend fun insertListTasks(list: List<Task>) {TODO()}
+    override suspend fun deletetask(task: Task) {TODO()}
+    override suspend fun updateTask(task: Task) {TODO()}
+}
+
