@@ -1,26 +1,28 @@
 package com.wendelledgar.proyectoinventorywendel.ui.item
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -33,23 +35,25 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarDetail
-import com.wendelledgar.proyectoinventorywendel.bottomAppBarEntry
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
@@ -99,7 +103,7 @@ fun TaskDetailsScreen(
         },
         modifier = modifier
     ) { innerPadding ->
-        TaskDetailsBody(
+        TaskDetailsBodyButtons(
             taskDetailsUiState = uiState,
             modificarRepeticiones = {
                 coroutineScope.launch {
@@ -132,8 +136,11 @@ fun TaskDetailsScreen(
     }
 }
 
+/**
+ * Botones con funcionalidades sobre una task (aumentar o diminuir repeticiones, eliminar task).
+ */
 @Composable
-private fun TaskDetailsBody(
+private fun TaskDetailsBodyButtons(
     taskDetailsUiState: taskUiState,
     modificarRepeticiones: (Boolean) -> Unit,
     updateUiState: () -> Unit,
@@ -142,42 +149,89 @@ private fun TaskDetailsBody(
     modifier: Modifier = Modifier
 ) {
     Column(
+        // Padding alrededor, aplicado a toda la Task.
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
     ) {
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
+        // Detalles de una task, título, sliders, etc.
         taskDetails(
             task = taskDetailsUiState.taskDetails.toTask(),
             updateSliderTask = updateSliderTask,
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(
-            onClick = {modificarRepeticiones(true)},
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.small,
-            enabled = true
-        ) {
-            Text(stringResource(R.string.aumentar_series))
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(id = R.dimen.padding_medium))
+        )
+        {
+            Column(
+                modifier = Modifier
+                    .weight(0.45f)
+                    .padding(0.dp)
+            ) {
+                // Boton aumentar repeticiones, aparece a la derecha
+                Button(
+                    onClick = {modificarRepeticiones(false)},
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small,
+                    contentPadding = PaddingValues(0.dp),
+                    enabled = true
+                ) {
+                    Text(
+                        text = stringResource(R.string.diminuir_series),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1, // Texto en una sola linea
+                        overflow = TextOverflow.Ellipsis, // si el texto es muy largo agrega puntos suspensivos
+                        softWrap = true // permite que el texto se ajuste automáticamente al tamaño disponible
+                    )
+                }
+            }
+            // Separador horizontal
+            Spacer(modifier = Modifier.weight(0.1f))
+
+            Column(
+                modifier = Modifier
+                    .weight(0.45f)
+                    .padding(0.dp)
+            ) {
+                // Boton diminuir repeticiones, a la izquierda
+                Button(
+                    onClick = {modificarRepeticiones(true)},
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(0.dp),
+                    shape = MaterialTheme.shapes.small,
+                    enabled = true
+                ) {
+                    Text(
+                        text = stringResource(R.string.aumentar_series),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1, // Texto en una sola linea
+                        overflow = TextOverflow.Ellipsis, // si el texto es muy largo agrega puntos suspensivos
+                        softWrap = true // permite que el texto se ajuste automáticamente al tamaño disponible
+                    )
+                }
+            }
         }
 
-        Button(
-            onClick = {modificarRepeticiones(false)},
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.small,
-            enabled = true
+        Column(
+            modifier = Modifier
+                .padding(horizontal = dimensionResource(id = R.dimen.padding_medium))
+                .padding(top = 0.dp, bottom = 0.dp)
         ) {
-            Text(stringResource(R.string.diminuir_series))
+            OutlinedButton(
+                onClick = { deleteConfirmationRequired = true },
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.delete))
+            }
         }
 
-        OutlinedButton(
-            onClick = { deleteConfirmationRequired = true },
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.delete))
-        }
         if (deleteConfirmationRequired) {
             DeleteConfirmationDialog(
                 title = R.string.attention,
@@ -193,6 +247,9 @@ private fun TaskDetailsBody(
     }
 }
 
+/**
+ * Box con una Row, muestra un slider de la task y un checkBox para completar el slider con las repeticiones.
+ */
 @Composable
 fun sliderAndCheckbox(
     sliderValue: Int,
@@ -201,13 +258,8 @@ fun sliderAndCheckbox(
     updateSliderTask: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-
     var sliderValue = sliderValue
-
     var previousSliderValue by rememberSaveable { mutableStateOf(0f) }
-
-
     var sliderCompleted = (sliderValue == totalRepeticiones)
 
     Box(
@@ -215,13 +267,18 @@ fun sliderAndCheckbox(
         contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(
+                start = dimensionResource(id = R.dimen.padding_medium),
+                end = 8.dp
+            ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = sliderValue?.toString() ?: "0",
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .weight(1f)
             )
             Slider(
                 value = sliderValue.toFloat(),
@@ -232,10 +289,11 @@ fun sliderAndCheckbox(
                 },
                 valueRange = 0f..totalRepeticiones.toFloat(),
                 steps = (totalRepeticiones),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(8f)
             )
             Checkbox(
                 checked = sliderCompleted,
+                modifier = Modifier.weight(1.5f),
                 onCheckedChange = {
                     sliderCompleted = it
                     if (it) {
@@ -254,9 +312,9 @@ fun sliderAndCheckbox(
 }
 
 
-
-
-
+/**
+ * ProgressBar que muestra el número de repeticiones realizadas sobre el total de la task.
+ */
 @Composable
 fun progressBar(
     total: Int,
@@ -269,15 +327,13 @@ fun progressBar(
     }
     Surface(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(id = R.dimen.padding_medium)),
         color = MaterialTheme.colorScheme.primaryContainer,
         //contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                ,
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             LinearProgressIndicator(
@@ -285,6 +341,8 @@ fun progressBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(16.dp),
+                    //.border(0.dp, MaterialTheme.colorScheme.tertiary, shape = RoundedCornerShape(0.dp)),
+                strokeCap = StrokeCap.Round,
                 trackColor = MaterialTheme.colorScheme.tertiary
             )
 
@@ -298,7 +356,9 @@ fun progressBar(
     }
 }
 
-
+/**
+ * Detalles de una Task, título, sliders, etc
+ */
 @Composable
 fun taskDetails(
     task: Task,
@@ -315,7 +375,7 @@ fun taskDetails(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(id = R.dimen.padding_medium)),
+                .padding(0.dp),
             verticalArrangement = Arrangement.spacedBy(
                 dimensionResource(id = R.dimen.padding_medium)
             )
@@ -323,6 +383,7 @@ fun taskDetails(
 
             cardTitle(taskName = task.name)
 
+            // Row que muestra el numero de repeticiones de una serie
             TaskDetailsRow(
                 labelResID = R.string.seriesNum,
                 taskDetail = task.totalRepeticiones.toString(),
@@ -331,6 +392,7 @@ fun taskDetails(
                 )
             )
 
+            // Row con el numero de repeticiones restantes
             TaskDetailsRow(
                 labelResID = R.string.num_series,
                 taskDetail = ((task.totalRepeticiones * 3) - task.repeticionesRealizadas).toString(),
@@ -338,6 +400,7 @@ fun taskDetails(
                     horizontal = dimensionResource(id = R.dimen.padding_medium)
                 )
             )
+            // Row con el numero de repeticiones realizadas
             TaskDetailsRow(
                 labelResID = R.string.repeticionesRealizadas,
                 taskDetail = task.repeticionesRealizadas.toString(),
@@ -346,13 +409,15 @@ fun taskDetails(
                 )
             )
 
+            // Primer slider
             sliderAndCheckbox(
                 totalRepeticiones = task.totalRepeticiones,
                 sliderValue = task.serie1,
                 sliderNumero = 1,
-                updateSliderTask = updateSliderTask,
+                updateSliderTask = updateSliderTask
             )
 
+            // Segundo slider
             sliderAndCheckbox(
                 totalRepeticiones = task.totalRepeticiones,
                 sliderValue = task.serie2,
@@ -360,6 +425,7 @@ fun taskDetails(
                 updateSliderTask = updateSliderTask,
             )
 
+            // Tercer Slider
             sliderAndCheckbox(
                 totalRepeticiones = task.totalRepeticiones,
                 sliderValue = task.serie3,
@@ -367,6 +433,7 @@ fun taskDetails(
                 updateSliderTask = updateSliderTask,
             )
 
+            // ProgressBar con la cantidad de repeticiones realizadas sobre el total
             progressBar(
                 total = (task.totalRepeticiones * 3),
                 completed = (task.serie1 + task.serie2 + task.serie3)
@@ -434,7 +501,7 @@ public fun DeleteConfirmationDialog(
 @Composable
 fun TaskDetailsScreenPreview() {
     TaskTheme {
-        TaskDetailsBody(
+        TaskDetailsBodyButtons(
             taskUiState(
                 taskDetails = TaskDetails(1, "task", "1", "1")
             ),

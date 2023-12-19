@@ -17,6 +17,8 @@
 
 <resources>
     <dimen name="padding_mini">5dp</dimen>
+    <dimen name="circular_progress_size">52dp</dimen>
+    <dimen name="padding_10">10dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_large">20dp</dimen>

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,18 +28,21 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,15 +60,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wendelledgar.proyectoinventorywendel.R
 import com.wendelledgar.proyectoinventorywendel.bottomAppBarHome
 import com.wendelledgar.proyectoinventorywendel.data.Task
 import com.wendelledgar.proyectoinventorywendel.topAppBar
-import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.AppViewModelProvider
 import com.wendelledgar.proyectoinventorywendel.ui.item.DeleteConfirmationDialog
+import com.wendelledgar.proyectoinventorywendel.ui.navigation.NavigationDestination
 import com.wendelledgar.proyectoinventorywendel.ui.theme.TaskTheme
 import kotlinx.coroutines.launch
 
@@ -183,7 +189,6 @@ private fun taskItem(
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
     val cardBackgroundColor by animateColorAsState(
         targetValue = if (expanded) MaterialTheme.colorScheme.tertiaryContainer else
@@ -194,6 +199,7 @@ private fun taskItem(
         if (task.completado) MaterialTheme.colorScheme.tertiary
         else MaterialTheme.colorScheme.primaryContainer
 
+    // Card con el contenido que queremos mostrar de una task
     Card(
         modifier = modifier,
     ) {
@@ -207,56 +213,69 @@ private fun taskItem(
                 )
                 .background(
                     cardBackgroundColorCompleted
-
                 )
                 .padding(dimensionResource(id = R.dimen.padding_small)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
         ) {
 
+            // Fila con información de una task mostrando el título y un icono.
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
             ) {
+                // Columna con un icono
+                iconoTask(
+                    imaxeId = task.icono,
+                    modifier = Modifier
+                        .weight(0.15f)
+                        .fillMaxSize()
+                )
 
-                /**
-                 *
-                 * Falta implementar lógica para eliminar una Task.
-                 *
-                 */
+                // No me gusta el boton aquí
+                //botonEliminarConConfirmacion(taskId = task.id, deleteTask = deleteTask, taskCompleted = task.completado)
 
-                if(task.completado){
-                    Button(onClick = { deleteConfirmationRequired = true}) {
-                        Text(
-                            text = "X"
-                        )
-                    }
-                }
-                if (deleteConfirmationRequired) {
-                    DeleteConfirmationDialog(
-                        title = R.string.attention,
-                        text = R.string.delete_question,
-                        onDeleteConfirm = {
-                            deleteConfirmationRequired = false
-                            deleteTask(task.id)
-                        },
-                        onDeleteCancel = { deleteConfirmationRequired = false },
-                        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
+                //Spacer(modifier = Modifier.weight(0.1f))
+
+                // Columna con el titulo de una Task
+                columnaConText(
+                    taskName = task.name,
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .weight(0.8f)
+                        //.padding(dimensionResource(id = R.dimen.padding_medium))
+                        .fillMaxSize()
+                )
+
+                Column(
+                    modifier = Modifier
+                        .weight(0.2f)
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.End
+                        //.padding(top = dimensionResource(id = R.dimen.padding_small))
+                ) {
+                    progressBar(
+                        total = task.totalRepeticiones * 3,
+                        completed = task.repeticionesRealizadas,
+                        taskCompleted = task.completado
                     )
                 }
 
-                cardTaskName(
-                    taskName = task.name,
-                    modifier = Modifier
-                        .weight(0.6f)
-                        .padding(dimensionResource(id = R.dimen.padding_medium))
-                )
-                //Spacer(modifier = Modifier.weight(1f))
-                iconoTask(imaxeId = task.icono)
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                    Column {
+
+                // Columna con Expand button
+                    Column(
+                        modifier = Modifier
+                            .weight(0.1f)
+                            .padding(
+                                start = dimensionResource(id = R.dimen.padding_mini),
+                                top = dimensionResource(id = R.dimen.padding_small)
+                            )
+                    ) {
                         Box(
                             modifier = Modifier
                                 .background(
@@ -270,59 +289,62 @@ private fun taskItem(
                                 onClick = { expanded = !expanded }
                             )
                         }
-
-
                     }
-                
-                Spacer(modifier = Modifier.weight(1f))
+                // Espacio horizontal
+                //Spacer(modifier = Modifier.weight(1f))
 
-                completadoCheckbox(task = task, updateTaskCompletion = updateTaskCompletion)
+                /*
+
+                // Columna con el ProgressBar no me convence aquí, pondré uno redonddo arriba
+                Column(
+                    modifier = Modifier
+                        .weight(0.7f)
+                        .padding(top = dimensionResource(id = R.dimen.padding_small))
+                ) {
+                    progressBar(
+                        total = task.totalRepeticiones * 3,
+                        completed = task.repeticionesRealizadas,
+                        taskCompleted = task.completado
+                    )
+                }
+
+                 */
+
+                // Switch boton completado
+                columnaSwitchCompletado(task = task, updateTaskCompletion = updateTaskCompletion, modifier = modifier.weight(0.2f))
 
             }
+            // Si pulsamos boton expandir mostramos info con repeticiones y descripcion de una task
             if (expanded) {
+                // Row con info de repeticiones realizadas, no me gusta, de momento lo quito, he puesto un progressBar entonces esto ya no sería necesario
+                /*
                 infoCardTask(
                     key = R.string.repeticionesRealizadas,
                     value = (task.repeticionesRealizadas.toString() + " de " + (task.totalRepeticiones * 3))
-                )
-
+                )*/
                 infoDescripcion(
                     key = R.string.description,
                     value = task.description
                 )
-
             }
-
-
         }
     }
 }
 
+// Columna con un switch para completar una tarea
 @Composable
-fun completadoCheckbox(
+fun columnaSwitchCompletado(
     task: Task,
     updateTaskCompletion: (Int, Boolean) -> Unit,
     modifier:Modifier = Modifier
 ) {
+    // No me gusta demasiado así, lo cambio por un slider.
+    //columnaPorcentajeCompletado(task)
 
-    Column (
-        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
-    ) {
+    // Slider para ver el progreso total en un task
 
-        Row {
-            Column {
-                Text(text = (((task.repeticionesRealizadas.toFloat() / (task.totalRepeticiones * 3).toFloat()) * 100).toInt()).toString() + "%",
-                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_small)))
-
-            }
-            Column {
-                Text(
-                    text = stringResource(R.string.completado)
-                )
-            }
-        }
-
-
-    }
+    // No me gusta como queda el slider, pondre una ProgressBar
+    //sliderAndCheckbox(task = task)
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -330,7 +352,6 @@ fun completadoCheckbox(
     ) {
 
         Spacer(Modifier.weight(1f))
-        
 
         switchCompleted(
             task = task,
@@ -339,20 +360,175 @@ fun completadoCheckbox(
     }
 }
 
+
+/**
+ * Función componible que muestra una ProgressBar con el porcentaje completado sobre el total de los sliders.
+ */
 @Composable
-fun cardTaskName(
+fun progressBar(
+    total: Int,
+    completed: Int,
+    taskCompleted: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val progress = if (total > 0) {
+        (completed.toFloat()/ total.toFloat())
+    } else {
+        0f
+    }
+
+    val surfaceColor =
+        if (taskCompleted) MaterialTheme.colorScheme.tertiary
+        else MaterialTheme.colorScheme.primaryContainer
+
+    val trackColor =
+        if (taskCompleted) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.tertiary
+
+
+    Surface(
+        modifier = Modifier,
+        color = surfaceColor,
+        //contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+    ) {
+        Box(
+            modifier = Modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                progress = progress.coerceIn(0f, 1f),
+                modifier = Modifier
+                    .size(dimensionResource(id = R.dimen.circular_progress_size))
+                    //.padding(end = 2.dp)
+                    .background(
+                        color = surfaceColor,
+                        shape = MaterialTheme.shapes.small
+                    ),
+                trackColor = trackColor
+            )
+
+            Text(
+                text = "$completed/$total",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
+    }
+}
+
+@Composable
+fun sliderAndCheckbox(
+    task: Task,
+    modifier: Modifier = Modifier
+) {
+    var sliderValue by rememberSaveable{ mutableStateOf(0f) }
+    sliderValue = (task.repeticionesRealizadas).toFloat()
+
+    var totalRepeticiones by remember{ mutableStateOf(0) }
+    totalRepeticiones = (task.totalRepeticiones * 3) ?: 0
+
+    Column(
+        modifier = modifier
+    ) {
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = sliderValue?.toString() ?: "0",
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Slider(
+                    value = sliderValue.toFloat(),
+                    onValueChange = {},
+                    valueRange = 0f..totalRepeticiones.toFloat(),
+                    steps = (totalRepeticiones),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+
+
+}
+
+
+@Composable
+fun columnaPorcentajeCompletado(
+    task: Task,
+    modifier: Modifier = Modifier
+) {
+    // Columna con un porcentaje y un texto;    Ejemplo: '100% Completado'
+    Column (
+        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_small))
+    ) {
+        Row {
+            // Columna con texto que marca porcentaje completado, por ejemplo 100%
+            Column {
+                Text(text = (((task.repeticionesRealizadas.toFloat() / (task.totalRepeticiones * 3).toFloat()) * 100).toInt()).toString() + "%",
+                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.padding_small)))
+            }
+            // Columna con el texto Completado
+            Column {
+                Text(
+                    text = stringResource(R.string.completado)
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun botonEliminarConConfirmacion(
+    taskCompleted: Boolean,
+    taskId: Int,
+    deleteTask: (Int) -> Unit
+) {
+    var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
+    if(taskCompleted){
+        Button(onClick = { deleteConfirmationRequired = true}) {
+            Text(
+                text = "X"
+            )
+        }
+    }
+    if (deleteConfirmationRequired) {
+        DeleteConfirmationDialog(
+            title = R.string.attention,
+            text = R.string.delete_question,
+            onDeleteConfirm = {
+                deleteConfirmationRequired = false
+                deleteTask(taskId)
+            },
+            onDeleteCancel = { deleteConfirmationRequired = false },
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
+        )
+    }
+}
+
+@Composable
+fun columnaConText(
     taskName: String,
+    fontSize: TextUnit = 30.sp,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = taskName,
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontSize = fontSize
         )
     }
 }
@@ -363,23 +539,19 @@ fun infoDescripcion(
     value: String,
     modifier: Modifier = Modifier
 ) {
-
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                top = dimensionResource(id = R.dimen.padding_small),
+                top = 0.dp,
                 start = dimensionResource(id = R.dimen.padding_small)
             )
     ) {
-
             Text(
                 text = stringResource(id = key),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-
-
     }
     Row(
         modifier = modifier
@@ -438,16 +610,17 @@ fun iconoTask(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.End,
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            modifier = modifier
-                .size(dimensionResource(R.dimen.image_card_size))
+            modifier = Modifier
+                //.size(dimensionResource(R.dimen.image_card_size))
+                .padding(0.dp)
                 //.padding(dimensionResource(R.dimen.padding_extra_small))
                 .clip(MaterialTheme.shapes.small),
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Inside,
             painter = painterResource(imaxeId),
             contentDescription = null
         )
