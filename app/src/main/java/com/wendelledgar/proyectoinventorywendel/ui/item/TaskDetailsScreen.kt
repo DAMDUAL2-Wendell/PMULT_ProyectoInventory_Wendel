@@ -320,7 +320,7 @@ fun taskDetails(
                 dimensionResource(id = R.dimen.padding_medium)
             )
         ) {
-           
+
             cardTitle(taskName = task.name)
 
             TaskDetailsRow(
